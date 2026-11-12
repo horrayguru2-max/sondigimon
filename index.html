@@ -69,6 +69,11 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* pick */
 .title{font-size:26px;font-weight:900;text-align:center;margin:6px 0}
+.pcard{position:relative;perspective:600px}
+.pcard .thumb{transform-style:preserve-3d;backface-visibility:hidden}
+.pcard .lvb{position:absolute;left:50%;top:6px;transform:translateX(-50%) scale(.6);background:linear-gradient(#ffd84a,#ff9f1c);color:#5a2d00;font-size:15px;font-weight:900;padding:3px 12px;border-radius:999px;box-shadow:0 3px 0 #0003;opacity:0;pointer-events:none;white-space:nowrap;z-index:2;transition:all .25s}
+.pcard .lvb.on{opacity:1;transform:translateX(-50%) scale(1)}
+.pcard.armed{outline:4px dashed #ff9f1c}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pcard{background:#fff;border-radius:22px;padding:12px 6px;box-shadow:0 5px 0 #0002;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:900;font-size:19px}
 .pcard small{font-size:13px;color:#888;font-weight:700}
@@ -203,9 +208,10 @@ button{font-family:inherit;cursor:pointer;border:0}
 .hp.mon::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100%/var(--segs,10) - 2px),#0007 calc(100%/var(--segs,10) - 2px),#0007 calc(100%/var(--segs,10)))}
 .hp span{z-index:2}
 .stage.prev{justify-content:space-between;align-items:flex-end;padding:0 6px}
-.evoprev{position:relative;width:128px;display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:8px;z-index:6}
+.evoprev{position:relative;width:156px;display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:8px;z-index:6}
 .evoprev .bubble{width:100%;background:#fff;border-radius:14px;padding:6px 9px 7px;font-size:12px;font-weight:800;text-align:left;line-height:1.5;box-shadow:0 3px 0 #0002;color:#4a3a7a}
 .evoprev .bt{font-size:12px;font-weight:900;color:#7b2ff7;border-bottom:2px dotted #d9ccff;margin-bottom:3px;padding-bottom:2px}
+.evoprev .bh{font-size:11px;font-weight:900;color:#fff;background:#9b6bff;border-radius:8px;padding:0 6px;margin:3px 0 1px}
 .evoprev .br{display:flex;justify-content:space-between;gap:8px;white-space:nowrap}
 .evoprev .br b{color:#e0561b}.evoprev .br.ok b{color:#1e9e55}
 .evoprev canvas{width:104px;height:104px;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 0 8px #fff8)}
@@ -422,6 +428,37 @@ button:focus-visible,input:focus-visible{outline:4px solid #7b4fe0;outline-offse
  86%{transform:translateX(0) translateY(0) scale(calc(var(--sc,1)*-1),var(--sc,1))}
  92%{transform:translateX(0) translateY(-5%) scale(var(--sc,1))}
  100%{transform:translateX(0) translateY(0) scale(var(--sc,1))}}
+/* roomier spacing: evolve bubble + buddy card */
+.evoprev{width:176px;gap:6px}
+.evoprev .bubble{padding:9px 12px 10px;font-size:13px;line-height:1.7;border-radius:16px}
+.evoprev .bt{font-size:13px;margin-bottom:4px;padding-bottom:4px}
+.petspot .evoprev{bottom:2%;transform:scale(.8)}
+.evoprev .bh{font-size:12px;margin:7px 0 3px;padding:2px 9px;line-height:1.6}
+.evoprev .br{padding:1px 2px;gap:12px}
+.card2{display:flex;flex-direction:column;gap:9px;padding:14px 18px 16px;width:calc(var(--mh)*.56)}
+.card2 .pname{margin-bottom:2px}
+.card2 .subs{gap:8px 8px}
+.card2 .sub{font-size:12px;padding:3px 10px}
+.card2 .eqbar{gap:8px}
+.card2 .bar{height:24px}.card2 .bar span{line-height:24px}
+.card2 .evo{margin-top:6px}
+.under .card2{width:auto}
+.map.small .card2{width:calc(var(--mh)*.66);gap:6px;padding:10px 14px}
+.map.l .card2{gap:5px;padding:8px 14px 10px;width:calc(var(--mh)*.5)}
+.map.l .card2 .subs{gap:5px 6px}
+.map.l .card2 .sub{padding:2px 8px;font-size:11px}
+.map.l .card2 .eqbar{gap:5px}
+.map.l .card2 .bar{height:22px}.map.l .card2 .bar span{line-height:22px}
+.map.l .card2 .sub{padding:2px 6px;font-size:10.5px;white-space:nowrap}
+.map.l .card2 .subs{display:grid;grid-template-columns:1fr 1fr;gap:4px 6px}
+.map.l .card2 .sub{text-align:center;overflow:hidden;text-overflow:ellipsis;min-width:0}
+@media (max-height:820px){
+ .map.l .card2 .eqbar{display:none}
+ .map.l .petspot .evoprev{transform:scale(.72)}
+}
+.hud-world{position:absolute;right:12px;top:64px;z-index:60;font-weight:900}
+.hud-world.fresh{background:linear-gradient(#bfe6ff,#e9d6ff);color:#3b2a8a;animation:bob 2s ease-in-out infinite}
+.hud-world.lockw{opacity:.75}
 </style>
 </head>
 <body>
@@ -437,10 +474,12 @@ const PETS = {
   angelwoman:{name:'Angelwoman',emoji:'👼'},
   treemon:{name:'Treemon',emoji:'🍄'},
   beetle:{name:'Beetlemon',emoji:'🪲'},
-  phoenix:{name:'Phoenixmon',emoji:'🔥'}
+  phoenix:{name:'Phoenixmon',emoji:'🔥'},
+  oceanmon:{name:'Oceanmon',emoji:'🌊'},
+  dragonmon:{name:'Dragonmon',emoji:'🐉'}
 };
 // top-of-figure fraction (for crown placement) per image
-const TOP = {"aguomon_1":0.566,"aguomon_2":0.277,"aguomon_3":0.034,"angelmon_1":0.586,"angelmon_2":0.262,"angelmon_3":0.033,"angelwoman_1":0.633,"angelwoman_2":0.331,"angelwoman_3":0.031,"treemon_1":0.528,"treemon_2":0.388,"treemon_3":0.058,"beetle_1":0.634,"beetle_2":0.389,"beetle_3":0.031,"phoenix_1":0.714,"phoenix_2":0.452,"phoenix_3":0.1};
+const TOP = {"aguomon_1":0.566,"aguomon_2":0.277,"aguomon_3":0.034,"angelmon_1":0.586,"angelmon_2":0.262,"angelmon_3":0.033,"angelwoman_1":0.633,"angelwoman_2":0.331,"angelwoman_3":0.031,"treemon_1":0.528,"treemon_2":0.388,"treemon_3":0.058,"beetle_1":0.634,"beetle_2":0.389,"beetle_3":0.031,"phoenix_1":0.714,"phoenix_2":0.452,"phoenix_3":0.1,"oceanmon_1":0.583,"oceanmon_2":0.308,"oceanmon_3":0.034,"dragonmon_1":0.616,"dragonmon_2":0.366,"dragonmon_3":0.034};
 const HEADY = {angelmon_3:.15,angelwoman_3:.14,beetle_3:.2,phoenix_3:.19};   // head-top fraction where it differs from the figure top
 const SUBJ = {
   bm:{name:'BM',label:'Bahasa Melayu',cls:'s-bm',lang:'ms-MY',date:'2026-11-17',emoji:'🌺'},
@@ -462,9 +501,9 @@ else if(!G.players)G={players:[{id:'p1',name:'Player 1',data:G}],active:null};  
 function save(){try{localStorage.setItem(KEY,JSON.stringify(G))}catch(e){mem=JSON.parse(JSON.stringify(G))}}
 let S={current:null,pets:{},sound:true,q:{}};                                     // = the active player's data (swapped on login)
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const UNLOCK_AT=[100,250,500,800,1200];                                            // total stars needed for the 2nd..6th fighter
+const UNLOCK_AT=[100,250,500,800,1200,1700,2300];                                            // total stars needed for the 2nd..6th fighter
 function initUnlock(){S.unlocked={};Object.keys(S.pets).forEach(k=>S.unlocked[k]=1);if(S.current)S.unlocked[S.current]=1;S.order=Object.keys(PETS).filter(k=>!S.unlocked[k])}
-function login(id){const pl=G.players.find(p=>p.id===id);if(!pl)return false;G.active=id;S=pl.data;if(S.bankv!==3){S.q={};S.bankv=3}if(!S.unlocked)initUnlock();save();return true}
+function login(id){const pl=G.players.find(p=>p.id===id);if(!pl)return false;G.active=id;S=pl.data;if(S.bankv!==3){S.q={};S.bankv=3}if(!S.unlocked)initUnlock();if(!S.order)S.order=[];Object.keys(PETS).forEach(k=>{if(!S.unlocked[k]&&S.order.indexOf(k)<0)S.order.push(k)});save();return true}
 function curPlayer(){return G.players.find(p=>p.id===G.active)}
 function addPlayer(name){const id='p'+Date.now().toString(36)+Math.floor(Math.random()*1000);G.players.push({id,name:String(name).trim().slice(0,12)||'Player',data:{current:null,pets:{},sound:true,q:{},bankv:3}});save();login(id);pickScreen(true)}
 function pet(k){const p=S.pets[k]||(S.pets[k]={stage:1,stars:0,correct:{bm:0,en:0,math:0,zh:0}});if(p.gems==null)p.gems=0;if(!p.owned)p.owned={};if(!p.equip)p.equip={};if(!p.sk)p.sk={atk:0,hp:0,luck:0,combo:0};if(!p.beat)p.beat={};if(p.tower==null)p.tower=0;return p}
@@ -476,7 +515,13 @@ function checkUnlocks(){const t=totalStars(),got=[];(S.order||[]).forEach((k,i)=
 function needStars(n){ if(n<=30)return 5*(n-1); let t=145; for(let i=31;i<=n;i++)t+=5+(i-30); return t }
 function rawPower(stars){ let p=1; while(needStars(p+1)<=stars)p++; return p }
 function power(p){ return Math.min(rawPower(p.stars),CAP[p.stage]) }
-function canEvolve(p){ const r=EVO[p.stage]; if(!r)return false; return p.stars>=r.stars && SKEYS.every(k=>p.correct[k]>=r.each) }
+function ssOf(p){if(!p.ss)p.ss={bm:0,en:0,math:0,zh:0};return p.ss}            // stars earned per subject (new: lets a kid evolve by drilling ONE subject)
+function bestSub(p){const ss=ssOf(p);return SKEYS.reduce((a,k)=>ss[k]>ss[a]?k:a,SKEYS[0])}
+function evoPath(p){ const r=EVO[p.stage]; if(!r)return null; const ss=ssOf(p);
+  if(SKEYS.some(k=>ss[k]>=r.stars))return 'single';                                  // route 1: one subject alone earns enough stars
+  if(p.stars>=r.stars && SKEYS.every(k=>p.correct[k]>=r.each))return 'all';          // route 2: all four subjects together
+  return null }
+function canEvolve(p){ return !!evoPath(p) }
 
 /* ================= items / stats / monsters ================= */
 const ITEMS={
@@ -516,10 +561,23 @@ const MON={
  lavaslime:{n:'Lava Slime',hp:10,hit:16,gems:22,req:22,reg:'volcano'},
  flame:{n:'Flame Sprite',hp:10,hit:18,gems:25,req:24,reg:'volcano'},
  turtle:{n:'Rock Turtle',hp:10,hit:20,gems:28,req:26,reg:'volcano'},
- boss_fire:{n:'Fire Horn',hp:15,hit:18,gems:40,req:30,reg:'volcano',boss:1}
+ boss_fire:{n:'Fire Horn',hp:15,hit:18,gems:40,req:30,reg:'volcano',boss:1},
+ /* Sky Adventure (world 2) */
+ ice_snowball:{n:'Snowball',hp:10,hit:22,gems:45,req:36,reg:'sky'},
+ ice_penguin:{n:'Icicle Penguin',hp:10,hit:23,gems:48,req:38,reg:'sky'},
+ ice_frost:{n:'Frost Sprite',hp:10,hit:24,gems:52,req:40,reg:'sky'},
+ boss_ice:{n:'Ice King',hp:18,hit:26,gems:80,req:45,reg:'sky',boss:1},
+ rb_cloud:{n:'Marshmallow Cloud',hp:10,hit:27,gems:56,req:48,reg:'sky'},
+ rb_drop:{n:'Rainbow Drop',hp:10,hit:28,gems:60,req:50,reg:'sky'},
+ rb_star:{n:'Star Pup',hp:10,hit:29,gems:64,req:52,reg:'sky'},
+ boss_rainbow:{n:'Rainbow Queen',hp:18,hit:32,gems:95,req:56,reg:'sky',boss:1},
+ st_imp:{n:'Storm Imp',hp:10,hit:33,gems:68,req:58,reg:'sky'},
+ st_ball:{n:'Zap Ball',hp:10,hit:34,gems:72,req:60,reg:'sky'},
+ st_whirl:{n:'Whirly Pup',hp:10,hit:35,gems:76,req:62,reg:'sky'},
+ boss_storm:{n:'Storm King',hp:18,hit:40,gems:120,req:66,reg:'sky',boss:1}
 };
 Object.keys(MON).forEach(k=>{MON[k].key=k;MON[k].img=k});
-const REG={forest:'🌲 Forest',ocean:'🌊 Ocean',volcano:'🌋 Volcano'};
+const REG={forest:'🌲 Forest',ocean:'🌊 Ocean',volcano:'🌋 Volcano',sky:'☁️ Sky'};
 function towerMon(f){const boss=f%10===0;const bk=['boss_rock','boss_thunder','boss_fire'][(f/10-1)%3];const base=['slime','mushroom','beetle'][f%3];const img=boss?bk:base;
  return {key:'tower',tower:f,boss:boss?1:0,img,n:boss?`${MON[bk].n} (Floor ${f} Boss)`:`${MON[base].n} (Floor ${f})`,hp:boss?20:10+Math.floor(f/5),hit:Math.round((6+f*1.4)*(boss?1.6:1)),gems:5+f+(boss?30:0)}}
 
@@ -561,10 +619,12 @@ function petHTML(key,stage,P,size){
   const pc=P>=100?'#ff6ad5':P>=50?'#fff0a0':P>=40?'#ff8a3d':P>=30?'#ffd34d':P>=20?'#b06bff':'#35a7ff';
   return `<div class="pv${cls}" style="--size:${size}px;--pc:${pc}"><div class="rainbow"></div><div class="pillar"></div><div class="ring"></div><div class="body"><img src="assets/pets/${key}_${stage}.png" alt="">${hd}${sw}<div class="crown" style="top:${top}%">👑</div><div class="flag">🚩</div><i class="fxh h1">💖</i><i class="fxh h2">💕</i><i class="fxh h3">💖</i><i class="fxs s1">✨</i><i class="fxs s2">⭐</i><i class="fxs s3">🌟</i><i class="bigheart">💗</i></div>${sp}${fl}</div>`;
 }
-function thumb(key,stage,box){                                   // the whole creature, never cropped (Bag / player avatars)
-  const ft=TOP[key+'_'+stage]||0,fh=Math.max(.15,1-ft-.03),z=Math.min(2.1,.98/fh);
-  const w=Math.round(box*z);
-  return `<div class="thumb" style="width:${box}px;height:${box}px"><img src="assets/pets/${key}_${stage}.png" alt="" style="width:${w}px;height:${w}px;left:50%;margin-left:-${Math.round(w/2)}px;bottom:-${Math.round(w*.03)+1}px"></div>`;
+const BBOX = {"aguomon_1":[0.278,0.566,0.722,0.969],"aguomon_2":[0.216,0.277,0.784,0.969],"aguomon_3":[0.031,0.034,0.969,0.969],"angelmon_1":[0.273,0.586,0.725,0.969],"angelmon_2":[0.211,0.263,0.787,0.969],"angelmon_3":[0.045,0.031,0.953,0.969],"angelwoman_1":[0.27,0.633,0.73,0.969],"angelwoman_2":[0.189,0.331,0.811,0.969],"angelwoman_3":[0.041,0.031,0.958,0.969],"beetle_1":[0.295,0.634,0.705,0.969],"beetle_2":[0.245,0.389,0.753,0.969],"beetle_3":[0.144,0.031,0.856,0.969],"phoenix_1":[0.366,0.714,0.634,0.969],"phoenix_2":[0.212,0.452,0.787,0.969],"phoenix_3":[0.031,0.1,0.969,0.969],"treemon_1":[0.277,0.528,0.723,0.969],"treemon_2":[0.206,0.388,0.792,0.969],"treemon_3":[0.031,0.058,0.969,0.969],"oceanmon_1":[0.25,0.583,0.748,0.966],"oceanmon_2":[0.23,0.308,0.77,0.966],"oceanmon_3":[0.058,0.034,0.942,0.966],"dragonmon_1":[0.308,0.616,0.692,0.966],"dragonmon_2":[0.258,0.366,0.741,0.966],"dragonmon_3":[0.047,0.034,0.953,0.966]};   // [left,top,right,bottom] of the visible creature, as fractions of each 640px image
+function thumb(key,stage,box){                                   // the whole creature, fitted both ways so wings/horns never get cropped (Bag / pick / avatars)
+  const b=BBOX[key+'_'+stage]||[0,TOP[key+'_'+stage]||0,1,.97],bw=b[2]-b[0],bh=b[3]-b[1];
+  const z=Math.min(2.1,.94/bw,.94/bh),w=Math.round(box*z);
+  const left=Math.round(box/2-w*(b[0]+b[2])/2),bot=Math.round(3-(1-b[3])*w);
+  return `<div class="thumb" style="width:${box}px;height:${box}px"><img src="assets/pets/${key}_${stage}.png" alt="" style="width:${w}px;height:${w}px;left:${left}px;bottom:${bot}px"></div>`;
 }
 
 /* ================= question banks ================= */
@@ -1171,10 +1231,52 @@ const app=$('#app');
 
 function eqBar(p){return '<div class="eqbar">'+SLOTS.map(sl=>{const id=p.equip[sl];return `<div class="eqs ${id?'on':''}">${id?`<img src="assets/items/${id}.png" alt="">`:SLOT_EMO[sl]}</div>`}).join('')+'</div>'}
 
+/* evolution showcase: point at / tap a buddy -> it turns around, levels up to Lv2, Lv3, then turns back into a baby */
+let PVTOK=0;
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function turnTo(card,k,stage,box){
+  const el=card.querySelector('.thumb');if(!el)return;
+  el.style.transition='transform .2s ease-in';el.style.transform='rotateY(90deg)';await wait(210);
+  const tmp=document.createElement('div');tmp.innerHTML=thumb(k,stage,box);el.innerHTML=tmp.firstChild.innerHTML;
+  el.style.transition='none';el.style.transform='rotateY(-90deg)';void el.offsetWidth;
+  el.style.transition='transform .2s ease-out';el.style.transform='rotateY(0deg)';await wait(210);
+}
+async function evoShow(card,k,box){
+  if(card.dataset.busy)return;card.dataset.busy='1';const tok=++PVTOK;
+  const badge=card.querySelector('.lvb'),sm=card.querySelector('small'),old=sm?sm.textContent:'';
+  const alive=()=>tok===PVTOK&&document.body.contains(card);
+  const base=+card.dataset.st||1;
+  const seq=[[2,'⬆️ Level up! Lv2',1100],[3,'🌟 Lv3 MAX!',1500],[base,'',0]];
+  for(const [st,txt,hold] of seq){
+    await turnTo(card,k,st,box);if(!alive())break;
+    if(badge){badge.textContent=txt;badge.classList.toggle('on',!!txt)}
+    if(txt){sndUP();sparkleAt(card)}
+    await wait(hold);if(!alive())break;
+  }
+  if(badge){badge.textContent='';badge.classList.remove('on')}
+  if(document.body.contains(card)){
+    const th=card.querySelector('.thumb');
+    if(th){const tmp=document.createElement('div');tmp.innerHTML=thumb(k,base,box);th.innerHTML=tmp.firstChild.innerHTML;th.style.transition='none';th.style.transform=''}
+    delete card.dataset.busy;
+  }
+}
+function sparkleAt(card){const r=card.getBoundingClientRect();for(let i=0;i<8;i++){const d=document.createElement('div');d.className='confetti';d.textContent=pick(['✨','⭐','🌟']);d.style.left=(r.left+r.width*(.2+Math.random()*.6))+'px';d.style.top=(r.top+r.height*.2)+'px';d.style.animationDuration='1.1s';d.style.position='fixed';document.body.appendChild(d);setTimeout(()=>d.remove(),1300)}}
+function attachShowcase(sel,box,onChoose){                  // mouse: hover previews, click chooses. touch: 1st tap previews, 2nd tap chooses
+  let touch=false,armed=null;
+  app.querySelectorAll(sel).forEach(b=>{
+    const k=b.dataset.k;
+    b.addEventListener('pointerdown',e=>{touch=e.pointerType==='touch'||e.pointerType==='pen'});
+    b.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')evoShow(b,k,box)});
+    b.addEventListener('click',()=>{
+      if(touch&&armed!==k){armed=k;app.querySelectorAll(sel).forEach(x=>x.classList.toggle('armed',x===b));evoShow(b,k,box);return}
+      onChoose(k);
+    });
+  });
+}
 function pickScreen(){                                    // first buddy: any of the 6 is free, the rest unlock with stars
-  app.innerHTML=`<div class="title">Choose your first buddy</div><div class="sub2">The other buddies unlock as you earn ⭐</div>
-  <div class="pgrid">${Object.keys(PETS).map(k=>`<button class="pcard" data-k="${k}"><div class="pimg"><img src="assets/pets/${k}_1.png" alt=""></div>${PETS[k].name}<small>New buddy</small></button>`).join('')}</div>`;
-  app.querySelectorAll('.pcard').forEach(b=>b.onclick=()=>{const k=b.dataset.k;S.current=k;pet(k);S.unlocked={[k]:1};S.order=Object.keys(PETS).filter(x=>x!==k);save();sndOK();homeScreen()});
+  app.innerHTML=`<div class="title">Choose your first buddy</div><div class="sub2">Point at a buddy to see how it grows! 👆 (on iPad: tap once to peek, tap again to choose)</div>
+  <div class="pgrid">${Object.keys(PETS).map(k=>`<button class="pcard" data-k="${k}">${thumb(k,1,140)}<span class="lvb"></span>${PETS[k].name}<small>New buddy</small></button>`).join('')}</div>`;
+  attachShowcase('.pcard',140,k=>{S.current=k;pet(k);S.unlocked={[k]:1};S.order=Object.keys(PETS).filter(x=>x!==k);save();sndOK();homeScreen()});
 }
 function avatarOf(pl){const d=pl.data,k=d.current;if(!k)return '<div class="av q">?</div>';const st=(d.pets[k]&&d.pets[k].stage)||1;return `<div class="av">${thumb(k,st,70)}</div>`}
 function whoScreen(){
@@ -1221,11 +1323,12 @@ const TIERS=[[10,'Blue light pillar'],[20,'Purple pillar + stars'],[30,'Gold pil
 function evoPreview(p,k){
   const r=EVO[p.stage];
   if(r){
-    const needS=Math.max(0,r.stars-p.stars);
+    const ss=ssOf(p),bs=bestSub(p),need1=Math.max(0,r.stars-ss[bs]),needS=Math.max(0,r.stars-p.stars);
     const rows=[['⭐ Stars',needS>0?needS+' more':'✓'],...SKEYS.map(s=>[SUBJ[s].name,p.correct[s]>=r.each?'✓':(r.each-p.correct[s])+' more'])];
-    const ready=rows.every(x=>x[1]==='✓');
-    const body=ready?'<div class="br ok"><span>Ready!</span><b>✓</b></div>':rows.map(([a,b])=>`<div class="br ${b==='✓'?'ok':''}"><span>${a}</span><b>${b}</b></div>`).join('');
-    return `<div class="evoprev"><div class="bubble"><div class="bt">${ready?'Evolving…':'To evolve'}</div>${body}</div><canvas class="mosaic" width="104" height="104" data-src="assets/pets/${k}_${p.stage+1}.png"></canvas><div class="q">?</div></div>`;
+    const ready=!!evoPath(p);
+    const row=(a,b)=>`<div class="br ${b==='✓'?'ok':''}"><span>${a}</span><b>${b}</b></div>`;
+    const body=ready?'<div class="br ok"><span>Ready!</span><b>✓</b></div>':`<div class="bh">① Just 1 subject</div>${row('⭐ '+SUBJ[bs].name+' '+Math.min(ss[bs],r.stars)+'/'+r.stars,need1>0?need1+' more':'✓')}<div class="bh">② All 4 subjects</div>${rows.map(([a,b])=>row(a,b)).join('')}`;
+    return `<div class="evoprev"><div class="bubble"><div class="bt">${ready?'Evolving…':'To evolve · pick one!'}</div>${body}</div><canvas class="mosaic" width="104" height="104" data-src="assets/pets/${k}_${p.stage+1}.png"></canvas><div class="q">?</div></div>`;
   }
   const P=power(p),nt=TIERS.find(t=>t[0]>P);
   if(!nt)return '';
@@ -1236,9 +1339,11 @@ function evoPreview(p,k){
 /* ---------- maps: Star Town (home) + Battle World ---------- */
 const SPOTS={
  l:{town:{bm:[.209,.299],en:[.800,.291],math:[.245,.735],zh:[.764,.759],pet:[.495,.60]},
-    battle:{slime:[.323,.480],mushroom:[.241,.622],beetle:[.273,.695],boss_rock:[.335,.304],jelly:[.536,.375],crab:[.577,.691],urchin:[.571,.851],boss_thunder:[.616,.213],lavaslime:[.723,.557],flame:[.700,.643],turtle:[.673,.756],boss_fire:[.745,.307],tower:[.895,.46]}},
+    battle:{slime:[.323,.480],mushroom:[.241,.622],beetle:[.273,.695],boss_rock:[.335,.304],jelly:[.536,.375],crab:[.577,.691],urchin:[.571,.851],boss_thunder:[.616,.213],lavaslime:[.723,.557],flame:[.700,.643],turtle:[.673,.756],boss_fire:[.745,.307],tower:[.895,.46]},
+    sky:{ice_snowball:[.117,.53],ice_penguin:[.205,.78],ice_frost:[.33,.79],boss_ice:[.34,.45],rb_cloud:[.43,.41],rb_drop:[.46,.68],rb_star:[.60,.74],boss_rainbow:[.52,.57],st_imp:[.645,.70],st_ball:[.715,.81],st_whirl:[.805,.74],boss_storm:[.715,.44]}},
  p:{town:{bm:[.245,.322],en:[.759,.322],math:[.206,.689],zh:[.769,.678],pet:[.502,.544]},
-    battle:{slime:[.411,.703],mushroom:[.664,.700],beetle:[.609,.753],boss_rock:[.757,.633],jelly:[.771,.456],crab:[.581,.542],urchin:[.692,.513],boss_thunder:[.804,.389],lavaslime:[.429,.371],flame:[.457,.412],turtle:[.646,.340],boss_fire:[.352,.256],tower:[.652,.167]}}
+    battle:{slime:[.411,.703],mushroom:[.664,.700],beetle:[.609,.753],boss_rock:[.757,.633],jelly:[.771,.456],crab:[.581,.542],urchin:[.692,.513],boss_thunder:[.804,.389],lavaslime:[.429,.371],flame:[.457,.412],turtle:[.646,.340],boss_fire:[.352,.256],tower:[.652,.167]},
+    sky:{ice_snowball:[.648,.735],ice_penguin:[.51,.685],ice_frost:[.40,.667],boss_ice:[.77,.675],rb_cloud:[.36,.505],rb_drop:[.50,.51],rb_star:[.62,.54],boss_rainbow:[.745,.515],st_imp:[.34,.39],st_ball:[.45,.40],st_whirl:[.53,.28],boss_storm:[.39,.31]}}
 };
 const orient=()=>window.innerWidth>=window.innerHeight*1.05?'l':'p';
 const unitOf=(o,bx)=>o==='l'?bx.h:bx.w;
@@ -1263,7 +1368,7 @@ function homeScreen(){
   const r=EVO[p.stage];
   if(r){pct=Math.min(p.stars,r.stars)/r.stars*100;label=`⭐ ${p.stars} / ${r.stars} (evolve)`}
   else{const lo=needStars(P),hi=needStars(P+1);pct=(p.stars-lo)/(hi-lo)*100;label=`⭐ ${p.stars} · ${hi-p.stars} to next level`}
-  const subs=r?SKEYS.map(s=>`<span class="sub ${p.correct[s]>=r.each?'ok':''}">${SUBJ[s].name} ${Math.min(p.correct[s],r.each)}/${r.each}</span>`).join(''):'';
+  const subs=r?SKEYS.map(s=>`<span class="sub ${ssOf(p)[s]>=r.stars?'ok':''}">${SUBJ[s].name} ⭐${Math.min(ssOf(p)[s],r.stars)}/${r.stars}</span>`).join(''):'';
   const capHint=(p.stage<3&&rawPower(p.stars)>CAP[p.stage])?' · evolve to keep levelling':'';
   const houses=SKEYS.map(s=>{const [x,y]=sp[s];const prog=r?`${Math.min(p.correct[s],r.each)}/${r.each}`:'';
     return `<button class="house s-${s}" data-s="${s}" style="left:${x*100}%;top:${y*100}%"><span class="hlab">${SUBJ[s].emoji} ${SUBJ[s].name}${prog?` <small>${prog}</small>`:''}${ne===s?'<span class="x2">⭐×2</span>':''}</span></button>`}).join('');
@@ -1297,7 +1402,7 @@ function bagScreen(){
   let body='';
   if(BAGTAB==='fighters'){
     body=`<div class="sub2">Total ⭐ earned: ${total}</div><div class="pgrid">${Object.keys(PETS).map(k=>{
-      if(S.unlocked[k]){const pp=S.pets[k],stg=pp?pp.stage:1;return `<button class="pcard ${S.current===k?'cur':''}" data-k="${k}">${thumb(k,stg,140)}${PETS[k].name}<small>${pp?`Lv${pp.stage} · P${power(pp)}`:'New buddy'}${S.current===k?' · playing':''}</small></button>`}
+      if(S.unlocked[k]){const pp=S.pets[k],stg=pp?pp.stage:1;return `<button class="pcard ${S.current===k?'cur':''}" data-k="${k}" data-st="${stg}">${thumb(k,stg,140)}<span class="lvb"></span>${PETS[k].name}<small>${pp?`Lv${pp.stage} · P${power(pp)}`:'New buddy'}${S.current===k?' · playing':''}</small></button>`}
       const need=Math.max(0,UNLOCK_AT[S.order.indexOf(k)]-total);
       return `<div class="pcard locked"><div class="pimg"><canvas class="mosaic" width="120" height="120" data-src="assets/pets/${k}_1.png"></canvas></div>???<small>⭐ ${need} more to unlock</small></div>`}).join('')}</div>`;
   }else{
@@ -1309,7 +1414,7 @@ function bagScreen(){
   <div class="tabs"><button class="tab ${BAGTAB==='fighters'?'on':''}" data-t="fighters">🦁 Fighters</button><button class="tab ${BAGTAB==='gear'?'on':''}" data-t="gear">🛡️ Gear</button></div>${body}`;
   $('#back').onclick=homeScreen;
   app.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{BAGTAB=b.dataset.t;bagScreen()});
-  app.querySelectorAll('.pcard[data-k]').forEach(b=>b.onclick=()=>{S.current=b.dataset.k;pet(S.current);save();sndOK();homeScreen()});
+  if(BAGTAB==='fighters')attachShowcase('.pcard[data-k]',140,k=>{S.current=k;pet(S.current);save();sndOK();homeScreen()});
   const gs=$('#gs');if(gs)gs.onclick=shopScreen;
   drawMosaics();
 }
@@ -1342,30 +1447,41 @@ function shopScreen(){
 /* ---------- battle ---------- */
 /* Battle World is a level path: beat one monster to unlock the next, boss last, then the next region, tower at the very end */
 const ORDER=['slime','mushroom','beetle','boss_rock','jelly','crab','urchin','boss_thunder','lavaslime','flame','turtle','boss_fire'];
-function isOpen(p,key){if(key==='tower')return !!p.beat.boss_fire;const i=ORDER.indexOf(key);return i===0||!!p.beat[ORDER[i-1]]}
-function nextLevel(p){for(const k of ORDER)if(!p.beat[k])return k;return 'tower'}
+const ORDER2=['ice_snowball','ice_penguin','ice_frost','boss_ice','rb_cloud','rb_drop','rb_star','boss_rainbow','st_imp','st_ball','st_whirl','boss_storm'];
+const ALLORDER=ORDER.concat(ORDER2);
+const skyOpen=p=>!!p.beat.boss_fire;                       // beat Fire Horn (end of world 1, opens the Tower) -> Sky Adventure opens
+let BWORLD=1;
+function isOpen(p,key){if(key==='tower')return !!p.beat.boss_fire;const j=ORDER2.indexOf(key);if(j>=0)return skyOpen(p)&&(j===0||!!p.beat[ORDER2[j-1]]);const i=ORDER.indexOf(key);return i===0||!!p.beat[ORDER[i-1]]}
+function nextLevel(p,w){const od=w===2?ORDER2:ORDER;for(const k of od)if(!p.beat[k])return k;return w===2?null:'tower'}
 let BPOOL='mix';
 function battleScreen(){
   if(!G.active)return whoScreen();
-  const o=orient();LASTO=o;const bx=mapBox(o),U=unitOf(o,bx),sp=SPOTS[o].battle,p=cur(),P=power(p),st=stats(p);
-  const nl=nextLevel(p);
-  const spots=Object.keys(MON).map(key=>{const m=MON[key],[x,y]=sp[key],lock=!isOpen(p,key),fresh=key===nl,lv=ORDER.indexOf(key)+1,tag=m.boss?'BOSS':'Lv '+lv;
+  const o=orient();LASTO=o;const bx=mapBox(o),U=unitOf(o,bx),p=cur(),P=power(p),st=stats(p);
+  if(BWORLD===2&&!skyOpen(p))BWORLD=1;
+  const w=BWORLD,od=w===2?ORDER2:ORDER,sp=SPOTS[o].battle,spSky=SPOTS[o].sky;
+  const nl=nextLevel(p,w);
+  const spots=od.map(key=>{const m=MON[key],[x,y]=(w===2?spSky:sp)[key],lock=!isOpen(p,key),fresh=key===nl,lv=ALLORDER.indexOf(key)+1,tag=m.boss?'BOSS':'Lv '+lv;
     const d=Math.round(m.boss?U*(o==='l'?.17:.2):U*(o==='l'?.10:.11));
     return `<button class="spot ${m.boss?'boss':''} ${lock?'lock':''} ${fresh?'fresh':''}" data-k="${key}" style="left:${x*100}%;top:${y*100}%;--d:${d}px;z-index:${10+Math.round(y*100)}"><span class="sring"></span><img src="assets/monsters/${m.img}.png" alt=""><span class="slab">${lock?'🔒 '+tag:(p.beat[key]?'✔ '+tag:tag)}</span></button>`}).join('');
-  const [tx,ty]=sp.tower,tw=isOpen(p,'tower'),td=Math.round(U*(o==='l'?.17:.2));
-  const tower=`<button class="spot boss ${tw?'fresh':'lock'}" id="tw" style="left:${tx*100}%;top:${ty*100}%;--d:${td}px;z-index:40"><span class="sring"></span><span class="tower">✨</span><span class="slab">${tw?'Floor '+(p.tower+1):'🔒 Tower'}</span></button>`;
-  app.innerHTML=`<div class="map ${o}${U<520?' small':''}" data-scr="battle" style="width:${bx.w}px;height:${bx.h}px;--mh:${U}px;background-image:url(assets/maps/battleworld_${o}.jpg)">
-    <button class="ghost hud-back" id="back">← Back</button>
+  let tower='';
+  if(w===1){const [tx,ty]=sp.tower,tw=isOpen(p,'tower'),td=Math.round(U*(o==='l'?.17:.2));
+    tower=`<button class="spot boss ${tw?'fresh':'lock'}" id="tw" style="left:${tx*100}%;top:${ty*100}%;--d:${td}px;z-index:40"><span class="sring"></span><span class="tower">✨</span><span class="slab">${tw?'Floor '+(p.tower+1):'🔒 Tower'}</span></button>`}
+  const sky=skyOpen(p);
+  const wbtn=w===2?`<button class="ghost hud-world" id="wsw">🌲 Star World</button>`:`<button class="ghost hud-world ${sky?'fresh':'lockw'}" id="wsw">${sky?'☁️ Sky Adventure':'🔒 Sky Adventure'}</button>`;
+  const hint=w===2?(nl?'☁️ Sky Adventure – next: '+MON[nl].n+' – tap the glowing place!':'🏆 You cleared the whole Sky Adventure!'):(nl==='tower'?'The Endless Tower is open – keep climbing!':'Next level: '+MON[nl].n+' – tap the glowing place!');
+  app.innerHTML=`<div class="map ${o}${U<520?' small':''}" data-scr="battle" style="width:${bx.w}px;height:${bx.h}px;--mh:${U}px;background-image:url(assets/maps/${w===2?'sky':'battleworld'}_${o}.jpg)">
+    <button class="ghost hud-back" id="back">← Back</button>${wbtn}
     <div class="hud-top"><div class="chips"><div class="chip">⚔️ ${st.atk} · ❤️ ${st.hp}</div><div class="chip gem">💎 ${p.gems}</div></div></div>
-    ${spots}${tower}<div class="hud-hint">${nl==='tower'?'The Endless Tower is open – keep climbing!':'Next level: '+MON[nl].n+' – tap the glowing place!'}</div></div>`;
+    ${spots}${tower}<div class="hud-hint">${hint}</div></div>`;
   $('#back').onclick=homeScreen;
+  $('#wsw').onclick=()=>{if(w===2){BWORLD=1;battleScreen()}else if(sky){BWORLD=2;sndOK();battleScreen()}else popText('🔒 Beat Fire Horn first!')};
   app.querySelectorAll('.spot[data-k]').forEach(b=>b.onclick=()=>fightCard(b.dataset.k));
-  $('#tw').onclick=()=>fightCard('tower');
+  const tb=$('#tw');if(tb)tb.onclick=()=>fightCard('tower');
 }
 function fightCard(key){
   const p=cur(),P=power(p),tower=key==='tower';
   const m=tower?towerMon(p.tower+1):MON[key];
-  const lock=!isOpen(p,key),prev=tower?MON.boss_fire:MON[ORDER[ORDER.indexOf(key)-1]];
+  const lock=!isOpen(p,key),prev=tower?MON.boss_fire:(ALLORDER.indexOf(key)>0?MON[ALLORDER[ALLORDER.indexOf(key)-1]]:null);
   const pool=[['mix','🎲 Mixed'],...SKEYS.map(s=>[s,SUBJ[s].name])];
   const o=document.createElement('div');o.className='modal';
   o.innerHTML=`<div class="mbox fight"><img class="fimg" src="assets/monsters/${m.img}.png" alt="">
@@ -1373,7 +1489,7 @@ function fightCard(key){
    <div class="sub2" style="margin:0">${m.hp} hits · counter ${m.hit} · 💎 ${m.gems}${tower?'':'<br>Recommended power: P'+m.req}</div>
    <div class="note2" style="text-align:center">About 10 questions: a right answer = your pet rushes in and hits; a wrong answer = the monster hits back. If your pet runs out of HP it just rests – you lose nothing.</div>
    <div class="regt" style="text-align:center;margin:0">Which subject?</div><div class="pills" id="fpills">${pool.map(([v,n])=>`<button class="pill ${BPOOL===v?'on':''}" data-v="${v}">${n}</button>`).join('')}</div>
-   ${lock?`<div class="lockmsg">🔒 Beat ${prev?prev.n:'the previous level'} first to unlock this level!</div>`:'<button class="next" id="fgo">Fight! ⚔️</button>'}
+   ${lock?`<div class="lockmsg">${ORDER2.indexOf(key)===0&&!skyOpen(p)?'🔒 Beat Fire Horn first to open the Sky Adventure!':'🔒 Beat '+(prev?prev.n:'the previous level')+' first to unlock this level!'}</div>`:'<button class="next" id="fgo">Fight! ⚔️</button>'}
    <button class="ghost" id="fcl">Close</button></div>`;
   document.body.appendChild(o);
   o.querySelectorAll('.pill').forEach(b=>b.onclick=()=>{BPOOL=b.dataset.v;o.querySelectorAll('.pill').forEach(x=>x.classList.toggle('on',x===b))});
@@ -1451,14 +1567,16 @@ function battleResult(res){
     save();sndUP();confetti(40);
   }
   const up=power(p)>Q.startP;
-  const oi=ORDER.indexOf(m.key),nxt=(res==='win'&&oi>=0)?(ORDER[oi+1]||'tower'):null,nxtName=nxt==='tower'?'Endless Tower':nxt&&MON[nxt].n;
+  const inSky=ORDER2.indexOf(m.key)>=0;BWORLD=inSky?2:1;
+  const oi=inSky?ORDER2.indexOf(m.key):ORDER.indexOf(m.key),nxt=(res==='win'&&oi>=0)?(inSky?(ORDER2[oi+1]||null):(ORDER[oi+1]||'tower')):null,nxtName=nxt==='tower'?'Endless Tower':nxt&&MON[nxt].n;
+  const skyNew=res==='win'&&m.key==='boss_fire'&&firstWin,skyDone=res==='win'&&m.key==='boss_storm'&&firstWin;
   const again=m.tower?(res==='win'?'Next floor →':'Try again'):'Fight again';
   app.innerHTML=`<div class="center"><div class="rs">${res==='win'?'Victory! 🎉':'Time for a rest 😴'}</div>
   <div class="stage" style="width:100%;height:260px">${petHTML(k,p.stage,power(p),230).replace('class="pv','class="pv '+(res==='win'?'hop':''))}</div>
   <div class="info" style="width:100%">${res==='win'?`<div style="font-size:24px;font-weight:900;color:#0b6fa8">💎 +${gems}${Q.st.luck?` (luck +${Q.st.luck}%)`:''}</div>`:'<div style="font-weight:800">You lost nothing – try again, you can win!</div>'}
    <div style="font-weight:800;color:#d9480f">⭐ +${Q.gained} (answers in battle count as practice too)</div>${up?`<div style="font-weight:900;color:#7b2ff7">⚡ Power up to P${power(p)}!</div>`:''}</div>
   ${canEvolve(p)?'<button class="evo" id="evo" style="width:100%">✨ Ready to evolve! Tap me ✨</button>':''}
-  ${firstWin&&nxt?`<div class="lockmsg" style="background:#e8fbe8;color:#14793d">🔓 New level unlocked: ${nxtName}!</div>`:''}
+  ${skyNew?`<div class="lockmsg" style="background:#e8f4ff;color:#0b5fa8">☁️ Sky Adventure unlocked! Open it from the Battle map.</div>`:''}${skyDone?`<div class="lockmsg" style="background:#fff4d6;color:#a86a00">🏆 You cleared the whole Sky Adventure!</div>`:''}${firstWin&&nxt?`<div class="lockmsg" style="background:#e8fbe8;color:#14793d">🔓 New level unlocked: ${nxtName}!</div>`:''}
   ${nxt?`<button class="next" style="width:100%" id="nxt">Next level → ${nxtName}</button>`:''}
   <button class="${nxt?'ghost':'next'}" style="${nxt?'':'width:100%'}" id="again">${again}</button>
   ${res==='win'?'<button class="ghost" id="shop">🛍️ Go to shop</button>':''}
@@ -1525,7 +1643,7 @@ function award(q){
   if(q.attempts===0){Q.combo++;if(Q.combo>=3)bonus=5}else Q.combo=0;
   n+=bonus;
   const p=cur();const before=power(p);
-  p.stars+=n;p.correct[qs]++;
+  p.stars+=n;p.correct[qs]++;ssOf(p)[qs]+=n;
   Q.gained+=n;Q.right++;
   if(Q.change){p.gems+=2;Q.gems+=2}
   if(q.id){const st=S.q[q.id]||(S.q[q.id]={r:0,w:0});st.r++}
