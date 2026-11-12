@@ -103,6 +103,8 @@ button{font-family:inherit;cursor:pointer;border:0}
 .opts.one{grid-template-columns:1fr}
 .opt{background:#fff;border-radius:20px;padding:16px 8px;font-size:23px;font-weight:800;box-shadow:0 5px 0 #0002;color:var(--ink);min-height:64px}
 .opt:active{transform:translateY(3px)}
+.opt .osp{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:18px;background:#e8f4ff;border-radius:50%;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #0002}
+.opt:has(.osp){padding-right:48px}
 .opt.good{background:var(--ok);color:#fff}
 .opt.bad{background:#ffd9d9;opacity:.8}
 .opt.gone{visibility:hidden}
@@ -587,7 +589,34 @@ function daysTo(s){const [y,m,d]=s.split('-').map(Number);return Math.round((new
 function nextExam(){ for(const k of SKEYS){ if(daysTo(SUBJ[k].date)>=0) return k } return null }
 
 /* ================= audio ================= */
-function speak(text,lang){ if(!S.sound||!window.speechSynthesis)return; try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=.85;speechSynthesis.speak(u)}catch(e){} }
+let VOICES=[],VWARNED={};
+function loadVoices(){try{VOICES=speechSynthesis.getVoices()||[]}catch(e){}}
+if(window.speechSynthesis){loadVoices();try{speechSynthesis.addEventListener('voiceschanged',loadVoices)}catch(e){}}
+function pickVoice(lang){
+  if(!VOICES.length)loadVoices();
+  const L=lang.toLowerCase().replace('_','-'),p=L.slice(0,2);
+  const by=f=>VOICES.find(f);
+  let v=by(x=>x.lang.toLowerCase().replace('_','-')===L)||by(x=>x.lang.toLowerCase().startsWith(p));
+  if(!v&&p==='ms')v=by(x=>/^id/i.test(x.lang))||by(x=>/malay|indones/i.test(x.name));
+  if(!v&&p==='zh')v=by(x=>/chinese|mandarin|cantonese|中文|普通话|國語|国语/i.test(x.name))||by(x=>/^(cmn|yue)/i.test(x.lang));
+  return v||null;
+}
+function speak(text,lang){
+  if(!S.sound||!window.speechSynthesis||!text)return;
+  try{
+    speechSynthesis.cancel();
+    const v=pickVoice(lang||'en-US'),u=new SpeechSynthesisUtterance(String(text));
+    if(v){u.voice=v;u.lang=v.lang}else{u.lang=lang||'en-US';
+      const p=(lang||'').slice(0,2);
+      if((p==='ms'||p==='zh')&&VOICES.length&&!VWARNED[p]){VWARNED[p]=1;
+        const t=document.createElement('div');t.textContent=p==='zh'?'📢 This device has no Chinese voice. Install one in Settings › Speech / Accessibility › Spoken Content.':'📢 This device has no Malay voice. Install one in Settings › Speech / Accessibility › Spoken Content.';
+        t.style.cssText='position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:99;background:#fff3cd;color:#5a4300;padding:10px 16px;border-radius:14px;font:700 14px system-ui;box-shadow:0 4px 12px #0003;max-width:90vw;text-align:center';
+        document.body.appendChild(t);setTimeout(()=>t.remove(),6000)}}
+    u.rate=.8;
+    if(speechSynthesis.paused)speechSynthesis.resume();
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
 let AC=null;
 function beep(freqs,dur=.12){ if(!S.sound)return; try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();let t=AC.currentTime;freqs.forEach(f=>{const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+dur);t+=dur*.9})}catch(e){} }
 const sndOK=()=>beep([660,880]), sndNO=()=>beep([220],.2), sndUP=()=>beep([523,659,784,1046],.14);
@@ -1610,7 +1639,7 @@ function showQ(){
   if(q.t==='choice'){
     q.shown=shuffle(q.opts);
     const long=q.shown.some(o=>o.length>8);
-    body=`<div class="opts ${long?'one':''}">${q.shown.map((o,j)=>`<button class="opt" data-j="${j}" data-n="${j+1}">${o}</button>`).join('')}</div>`;
+    body=`<div class="opts ${long?'one':''}">${q.shown.map((o,j)=>`<button class="opt" data-j="${j}" data-n="${j+1}">${o}${(q.sk||Q.sk)!=='math'?'<span class="osp" title="Listen">🔊</span>':''}</button>`).join('')}</div>`;
   }else{
     q.shown=shuffle(q.words);let g=0;while(q.shown.join(q.sep)===q.a&&g++<10)q.shown=shuffle(q.words);
     q.placed=[];
@@ -1623,7 +1652,10 @@ function showQ(){
   $('#x').onclick=()=>Q.mode==='battle'?battleScreen():Q.change?shopScreen():homeScreen();
   $('#say').onclick=()=>speak(qSay(q),lang);
   setTimeout(()=>speak(qSay(q),lang),250);
-  if(q.t==='choice')app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answerChoice(b));
+  if(q.t==='choice')app.querySelectorAll('.opt').forEach(b=>{
+    b.onclick=e=>{if(e&&e.target.closest&&e.target.closest('.osp')){e.stopPropagation();speak(q.shown[+b.dataset.j],lang);return}answerChoice(b)};
+    if((q.sk||Q.sk)!=='math')b.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!q.done)speak(q.shown[+b.dataset.j],lang)});
+  });
   else app.querySelectorAll('#wb .chipw').forEach(b=>b.onclick=()=>moveChip(b));
 }
 const CHEERS=['c-hop','c-flag','c-hearts','c-stars','c-run','c-love'];
@@ -1697,7 +1729,7 @@ function moveChip(btn){
   const q=Q.qs[Q.i];if(q.done)return;
   const j=+btn.dataset.j;
   q.placed.push(j);btn.classList.add('hide');btn.onclick=null;
-  speak(q.shown[j],q.lang);
+  speak(q.shown[j],q.lang||SUBJ[q.sk||Q.sk].lang);
   renderAns(q);
   if(q.placed.length===q.words.length)setTimeout(()=>checkOrder(q),350);
 }
@@ -1720,7 +1752,7 @@ function checkOrder(q){
   }else{
     fb.textContent='Correct: '+q.a;
     q.placed=[];a.innerHTML=`<div class="qtext">${q.a}</div>`;
-    speak(q.a,q.lang);
+    speak(q.a,q.lang||SUBJ[q.sk||Q.sk].lang);
     Q.log[Q.i]='no';refreshDots();finishQ(false);
   }
 }
