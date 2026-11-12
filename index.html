@@ -1,0 +1,1664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<title>K2 Monster Practice</title>
+<style>
+:root{--ink:#2b2350;--accent:#ffb300;--ok:#33b86a;--bad:#ef5350;--card:#fff;--bg1:#7ec4f2;--bg2:#d9f1ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);background:linear-gradient(#8fd0ff,#e9f7ff 60%,#c9f0c0);user-select:none}
+button{font-family:inherit;cursor:pointer;border:0}
+#app{max-width:560px;margin:0 auto;min-height:100%;padding:12px 14px 24px;display:flex;flex-direction:column;gap:10px;position:relative}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chip{background:#fff;border-radius:20px;padding:6px 14px;font-weight:800;font-size:15px;box-shadow:0 3px 0 #0001}
+.icon-btn{background:#fff;border-radius:50%;width:42px;height:42px;font-size:20px;box-shadow:0 3px 0 #0002}
+.stage{position:relative;height:330px;border-radius:26px;background:linear-gradient(#6fb7ee 0%,#a9dcfb 58%,#7cc36c 58%,#5fae53 100%);box-shadow:0 6px 0 #0002;overflow:hidden;display:flex;justify-content:center;align-items:flex-end}
+.stage .pv{margin-bottom:4px}
+.stage::before{content:"☁️";position:absolute;left:8%;top:10%;font-size:44px;opacity:.9}
+.stage::after{content:"☁️";position:absolute;right:10%;top:20%;font-size:34px;opacity:.8}
+.info{background:#fff;border-radius:22px;padding:12px 14px;box-shadow:0 4px 0 #0002;display:flex;flex-direction:column;gap:8px}
+.pname{font-size:24px;font-weight:900;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lv{font-size:14px;background:var(--accent);color:#fff;border-radius:10px;padding:2px 9px}
+.pow{font-weight:800;color:#d9480f;font-size:17px}
+.pow small{color:#888;font-weight:600}
+.bar{position:relative;height:26px;background:#e8e5f7;border-radius:14px;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#ffd34d,#ff9f1a);border-radius:14px;transition:width .5s}
+.bar span{position:relative;display:block;text-align:center;line-height:26px;font-weight:800;font-size:14px}
+.subs{display:flex;gap:6px;flex-wrap:wrap}
+.sub{font-size:13px;font-weight:800;border-radius:12px;padding:3px 9px;background:#f0eefb}
+.sub.ok{background:#d4f5df;color:#14793d}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sbtn{position:relative;border-radius:22px;padding:16px 8px;color:#fff;font-weight:900;font-size:22px;box-shadow:0 6px 0 #0003;display:flex;flex-direction:column;align-items:center;gap:2px}
+.sbtn small{font-size:12px;font-weight:700;opacity:.95}
+.sbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #0003}
+.sbtn .x2{position:absolute;right:8px;top:-8px;background:#ff3d71;border-radius:12px;padding:2px 8px;font-size:13px}
+.s-bm{background:#e4572e}.s-en{background:#2f80ed}.s-math{background:#27ae60}.s-zh{background:#9b51e0}
+.evo{background:linear-gradient(90deg,#ffd34d,#ff7a00);color:#fff;font-size:22px;font-weight:900;border-radius:22px;padding:14px;box-shadow:0 6px 0 #b35a00;animation:pulseb 1s ease-in-out infinite}
+@keyframes pulseb{50%{transform:scale(1.04)}}
+.foot{display:flex;justify-content:center;gap:10px}
+.ghost{background:#ffffffb0;border-radius:16px;padding:8px 16px;font-weight:800;color:var(--ink)}
+
+/* pet view + auras */
+.pv{position:relative;width:var(--size,260px);height:var(--size,260px);flex:none}
+.pv .body{position:absolute;inset:0;transform-origin:50% 100%;animation:bob 2s ease-in-out infinite;transition:transform .4s;z-index:3}
+.pv img{width:100%;height:100%;display:block;pointer-events:none}
+@keyframes bob{50%{transform:translateY(-3%)}}
+.pv .ring,.pv .rainbow,.pv .crown,.pv .spark,.pv .flame{display:none}
+.pv .ring{position:absolute;left:50%;bottom:1%;width:70%;height:12%;margin-left:-35%;border-radius:50%;z-index:1;border:4px solid #4aa8ff;box-shadow:0 0 18px #4aa8ff,inset 0 0 14px #4aa8ff;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.12);opacity:.7}}
+.pv.t10 .ring{display:block}
+.pv.t20 .ring{border-color:#b06bff;box-shadow:0 0 18px #b06bff,inset 0 0 14px #b06bff}
+.pv .spark{position:absolute;z-index:4;pointer-events:none;animation:floatup 2.4s linear infinite;opacity:0}
+@keyframes floatup{0%{transform:translateY(20px) scale(.5);opacity:0}20%{opacity:1}100%{transform:translateY(-110px) scale(1.1);opacity:0}}
+.pv.t20 .spark.a,.pv.t100 .spark.b{display:block}
+.pv .crown{position:absolute;left:50%;margin-left:-.5em;font-size:calc(var(--size,260px)*.16);z-index:5;animation:bob 1.6s ease-in-out infinite}
+.pv.t30 .crown{display:block}
+.pv .flame{position:absolute;z-index:2;font-size:calc(var(--size,260px)*.12);pointer-events:none;animation:flame 1.1s ease-in infinite;opacity:0}
+@keyframes flame{0%{transform:translate(0,0) scale(1);opacity:.95}100%{transform:translate(-50px,-45px) scale(.2);opacity:0}}
+.pv.t40 .flame{display:block}
+.pv.t50 .body{transform:scale(1.1)}
+.pv.t50 img{filter:drop-shadow(0 0 14px #ffd34d)}
+.pv .rainbow{position:absolute;left:10%;top:15%;width:80%;height:80%;border-radius:50%;z-index:0;background:conic-gradient(red,orange,yellow,lime,cyan,blue,violet,red);filter:blur(20px);opacity:.5;animation:spin 5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pv.t100 .rainbow{display:block}
+
+/* pick */
+.title{font-size:26px;font-weight:900;text-align:center;margin:6px 0}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pcard{background:#fff;border-radius:22px;padding:12px 6px;box-shadow:0 5px 0 #0002;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:900;font-size:19px}
+.pcard small{font-size:13px;color:#888;font-weight:700}
+.pcard.cur{outline:4px solid var(--accent)}
+.pimg{width:150px;height:120px;overflow:hidden;position:relative}
+.pimg img{width:270px;position:absolute;left:-60px;bottom:-5px}
+.pcard:active{transform:translateY(3px)}
+
+/* quiz */
+.qtop{display:flex;align-items:center;gap:10px}
+.dots{display:flex;gap:6px;flex:1;justify-content:center}
+.dot{width:16px;height:16px;border-radius:50%;background:#fff8;border:2px solid #fff}
+.dot.cur{background:var(--accent)}.dot.ok{background:var(--ok)}.dot.no{background:#aaa}
+.qcard{background:#fff;border-radius:24px;padding:16px;box-shadow:0 5px 0 #0002;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.qtext{font-size:23px;font-weight:800;line-height:1.35}
+.qtext small{display:block;font-size:15px;color:#6a6a8a;font-weight:600}
+.big{font-size:88px;line-height:1.1}
+.bigch{font-size:96px;font-weight:700;line-height:1.1;font-family:"KaiTi","STKaiti","Microsoft YaHei",serif}
+.passage{background:#fff7e0;border-radius:16px;padding:12px 14px;font-size:20px;line-height:1.6;text-align:left;width:100%}
+.scene{display:flex;align-items:center;justify-content:center;font-size:64px;line-height:1;min-height:120px}
+.scene.col{flex-direction:column;min-height:150px}
+.scene .inbox{position:relative}.scene .inbox i{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);font-size:.45em;font-style:normal}
+.scene .fr{margin-left:-.55em;position:relative;z-index:2}
+.clock{width:170px;height:170px}
+.speak{background:#e8f4ff;border-radius:18px;padding:6px 14px;font-size:18px;font-weight:800}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts.one{grid-template-columns:1fr}
+.opt{background:#fff;border-radius:20px;padding:16px 8px;font-size:23px;font-weight:800;box-shadow:0 5px 0 #0002;color:var(--ink);min-height:64px}
+.opt:active{transform:translateY(3px)}
+.opt.good{background:var(--ok);color:#fff}
+.opt.bad{background:#ffd9d9;opacity:.8}
+.opt.gone{visibility:hidden}
+.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.fb{min-height:34px;text-align:center;font-size:20px;font-weight:900}
+.fb.ok{color:#14793d}.fb.no{color:#c62828}
+.pop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);font-size:56px;font-weight:900;color:#ff9f1a;text-shadow:0 3px 0 #fff,0 0 20px #fff;animation:popup 1s ease-out forwards;z-index:50;pointer-events:none;white-space:nowrap}
+@keyframes popup{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-120%) scale(1)}}
+.next{background:var(--accent);color:#fff;border-radius:20px;padding:14px;font-size:22px;font-weight:900;box-shadow:0 5px 0 #b37d00}
+.ans{min-height:68px;background:#f0eefb;border-radius:18px;padding:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;width:100%}
+.wbank{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.chipw{background:#fff;border-radius:16px;padding:10px 16px;font-size:23px;font-weight:800;box-shadow:0 4px 0 #0002;border:2px solid #d8d3f3}
+.chipw.hide{visibility:hidden}
+.ans .chipw{background:#fff7e0;border-color:var(--accent)}
+
+/* result / evolve */
+.center{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.rs{font-size:34px;font-weight:900}
+.flash{position:fixed;inset:0;background:#fff;opacity:0;z-index:60;pointer-events:none}
+.flash.go{animation:flash 1.2s ease-in-out forwards}
+@keyframes flash{0%{opacity:0}45%{opacity:1}100%{opacity:0}}
+.glow img{animation:glowy 1.4s ease-in forwards}
+@keyframes glowy{0%{filter:brightness(1)}100%{filter:brightness(6) saturate(0)}}
+.hop{animation:hop .6s ease-in-out infinite}
+@keyframes hop{50%{transform:translateY(-16px)}}
+.confetti{position:fixed;top:-30px;font-size:30px;z-index:40;animation:fall linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+.hidden{display:none}
+
+/* ---- P1: battle / shop / skills ---- */
+.top{flex-wrap:wrap}
+.chip.gem{background:#e6f6ff;color:#0b6fa8}
+.stline{font-weight:800;font-size:15px;color:#555}
+.eqbar{display:flex;gap:6px;flex-wrap:wrap}
+.eqs{width:38px;height:38px;border-radius:12px;background:#f0eefb;display:grid;place-items:center;font-size:18px;opacity:.55}
+.eqs.on{opacity:1;background:#fff4d6;box-shadow:inset 0 0 0 2px #ffcf5a}
+.eqs img{width:32px;height:32px;object-fit:contain}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.abtn{position:relative;border-radius:20px;padding:12px 4px;color:#fff;font-size:30px;box-shadow:0 5px 0 #0003;display:flex;flex-direction:column;align-items:center}
+.abtn b{font-size:17px}
+.abtn:active{transform:translateY(3px)}
+.abtn .x2{position:absolute;right:6px;top:-8px;background:#ff3d71;border-radius:12px;padding:1px 9px;font-size:14px;font-weight:800}
+.a-battle{background:#ef5a5a}.a-shop{background:#1fa7e8}.a-skill{background:#8e5bd6}
+.pv .eqhead{position:absolute;left:50%;z-index:6;transform-origin:50% 90%;animation:hatfloat 2.4s ease-in-out infinite;filter:drop-shadow(0 4px 4px #0003)}
+@keyframes hatfloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-7%) rotate(4deg)}}
+.pv .eqsword{position:absolute;bottom:3%;z-index:6;transform-origin:22% 88%;animation:swordfloat 2.8s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(140,210,255,.95))}
+@keyframes swordfloat{0%,100%{transform:rotate(6deg) translateY(0)}50%{transform:rotate(17deg) translateY(-7%)}}
+.pv.hashead .crown{display:none!important}
+.pv img.eqhead,.pv img.eqsword{height:auto}
+/* battle */
+.bscene{display:flex;align-items:flex-end;justify-content:space-between;background:linear-gradient(#6fb7ee 0%,#a9dcfb 55%,#7cc36c 55%,#5fae53 100%);border-radius:22px;padding:8px 8px 10px;box-shadow:0 5px 0 #0002;min-height:210px}
+.bside{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;width:44%}
+.vs{font-size:28px;padding-bottom:70px}
+.mimg{width:140px;height:140px;object-fit:contain;animation:bob 2s ease-in-out infinite}
+.hp{position:relative;width:100%;height:20px;border-radius:12px;background:#0004;overflow:hidden}
+.hp i{position:absolute;left:0;top:0;bottom:0;transition:width .4s}
+.hp.pet i{background:#3ddc84}.hp.mon i{background:#ff5d5d}
+.hp span{position:relative;display:block;text-align:center;line-height:20px;font-size:12px;font-weight:800;color:#fff;text-shadow:0 1px 2px #000a}
+.hurt{animation:hurt .45s}
+@keyframes hurt{20%{transform:translateX(-8px);filter:brightness(2) saturate(2)}60%{transform:translateX(8px)}100%{transform:none}}
+.dmg{position:absolute;top:10px;font-size:28px;font-weight:900;color:#fff;text-shadow:0 2px 0 #c00,0 0 8px #000;animation:dmgup .9s ease-out forwards;z-index:9;pointer-events:none}
+@keyframes dmgup{0%{opacity:0;transform:translateY(10px) scale(.6)}20%{opacity:1;transform:translateY(-4px) scale(1.2)}100%{opacity:0;transform:translateY(-50px)}}
+.pills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.pill{background:#fff;border-radius:16px;padding:6px 12px;font-weight:800;font-size:14px;box-shadow:0 3px 0 #0002}
+.pill.on{background:var(--accent);color:#fff}
+.mcard{display:flex;align-items:center;gap:10px;background:#fff;border-radius:20px;padding:8px 12px;box-shadow:0 4px 0 #0002;text-align:left;width:100%;color:var(--ink)}
+.mcard img{width:74px;height:74px;object-fit:contain}
+.mcard .mt{flex:1;font-weight:900;font-size:17px}.mcard small{display:block;font-weight:700;color:#777;font-size:13px}
+.mcard.lock{opacity:.5}.mcard .go2{background:#ef5a5a;color:#fff;border-radius:14px;padding:8px 14px;font-weight:900}
+.regt{font-weight:900;font-size:18px;margin:6px 2px 0}
+.col{display:flex;flex-direction:column;gap:8px}
+/* shop */
+.tabs{display:flex;gap:6px}.tab{flex:1;background:#fff;border-radius:14px;padding:8px 2px;font-weight:800;font-size:14px;box-shadow:0 3px 0 #0002;color:var(--ink)}.tab.on{background:var(--p,#7b4fe0);color:#fff}
+.items{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.icard{background:#fff;border-radius:20px;padding:10px 6px;text-align:center;box-shadow:0 4px 0 #0002;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:2px}
+.icard img{width:86px;height:86px;object-fit:contain}
+.icard small{color:#c0392b;font-weight:800;font-size:13px}
+.buy{margin-top:4px;border-radius:14px;padding:8px 14px;font-weight:900;font-size:16px;color:#fff;background:#1fa7e8;box-shadow:0 3px 0 #0003}
+.buy.off{background:#aaa}.buy.wear{background:#27ae60}.buy.on{background:#e67e22}
+.skrow{display:flex;align-items:center;gap:10px;background:#fff;border-radius:20px;padding:10px 14px;box-shadow:0 4px 0 #0002}
+.skrow .em{font-size:34px}.skt{flex:1}.skt b{font-size:20px;display:block}.skt small{color:#777;font-weight:700}
+.skn{font-size:26px;font-weight:900;min-width:30px;text-align:center}
+.plus{width:46px;height:46px;border-radius:50%;background:#8e5bd6;color:#fff;font-size:26px;font-weight:900;box-shadow:0 3px 0 #0003}.plus:disabled{background:#bbb}
+.note2{font-size:13px;color:#777;font-weight:600}
+
+/* ---- v3: obvious glow + light pillar + battle dash + evolution preview ---- */
+.grid3{grid-template-columns:1fr 1fr}
+.pv .ring,.pv.t20 .ring{border-width:5px;border-color:var(--pc,#35a7ff);box-shadow:0 0 22px var(--pc),0 0 46px var(--pc),inset 0 0 18px var(--pc)}
+.pv.t10 .body img{filter:drop-shadow(0 0 10px var(--pc)) drop-shadow(0 0 24px var(--pc))}
+.pv.t30 .body img{filter:drop-shadow(0 0 14px var(--pc)) drop-shadow(0 0 34px var(--pc))}
+.pv.t50 .body img{filter:drop-shadow(0 0 18px var(--pc)) drop-shadow(0 0 44px var(--pc))}
+.pv .pillar{display:none;position:absolute;left:50%;bottom:3%;width:58%;height:94%;transform:translateX(-50%);z-index:0;border-radius:50% 50% 40% 40%/8% 8% 4% 4%;background:linear-gradient(90deg,transparent,var(--pc) 26%,#fff 50%,var(--pc) 74%,transparent);opacity:.6;filter:blur(6px);-webkit-mask-image:linear-gradient(to top,#000 55%,transparent);mask-image:linear-gradient(to top,#000 55%,transparent);animation:pillar 1.8s ease-in-out infinite}
+.pv .pillar::before{content:"";position:absolute;left:4%;right:4%;top:0;height:12%;border-radius:50%;background:#fff;opacity:.85}
+.pv.t10 .pillar{display:block}
+.pv.t30 .pillar{opacity:.75;width:66%}
+.pv.t50 .pillar{opacity:.9;width:74%}
+@keyframes pillar{50%{opacity:1;transform:translateX(-50%) scaleX(1.14)}}
+.bside.dashing{animation:dashgo .8s ease-in-out;z-index:20}
+@keyframes dashgo{0%{transform:translateX(0)}28%{transform:translateX(var(--dx)) scale(1.18)}42%{transform:translateX(calc(var(--dx)*.92)) scale(1.1)}100%{transform:translateX(0)}}
+.boom{position:absolute;top:34%;left:50%;font-size:60px;transform:translate(-50%,-50%);animation:boom .6s ease-out forwards;z-index:12;pointer-events:none}
+@keyframes boom{0%{transform:translate(-50%,-50%) scale(.2);opacity:1}60%{transform:translate(-50%,-50%) scale(1.5)}100%{transform:translate(-50%,-50%) scale(1.9);opacity:0}}
+.hp.mon::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100%/var(--segs,10) - 2px),#0007 calc(100%/var(--segs,10) - 2px),#0007 calc(100%/var(--segs,10)))}
+.hp span{z-index:2}
+.stage.prev{justify-content:space-between;align-items:flex-end;padding:0 6px}
+.evoprev{position:relative;width:128px;display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:8px;z-index:6}
+.evoprev .bubble{width:100%;background:#fff;border-radius:14px;padding:6px 9px 7px;font-size:12px;font-weight:800;text-align:left;line-height:1.5;box-shadow:0 3px 0 #0002;color:#4a3a7a}
+.evoprev .bt{font-size:12px;font-weight:900;color:#7b2ff7;border-bottom:2px dotted #d9ccff;margin-bottom:3px;padding-bottom:2px}
+.evoprev .br{display:flex;justify-content:space-between;gap:8px;white-space:nowrap}
+.evoprev .br b{color:#e0561b}.evoprev .br.ok b{color:#1e9e55}
+.evoprev canvas{width:104px;height:104px;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 0 8px #fff8)}
+.evoprev .q{position:absolute;bottom:34px;font-size:38px;font-weight:900;color:#fff;text-shadow:0 2px 6px #000a}
+.evoprev .tierico{font-size:60px}
+.ctab{border-collapse:collapse;font-size:22px;margin:6px auto}.ctab td{border:2px solid #333;padding:4px 14px;min-width:60px;font-weight:800}
+
+/* ---- v6: players, adventure header, bag ---- */
+.sub2{text-align:center;color:#5a5a8a;font-weight:700;margin:-4px 0 6px}
+.plist{display:flex;flex-direction:column;gap:10px}
+.prow{display:flex;gap:8px;align-items:stretch}
+.pbtn{flex:1;display:flex;align-items:center;gap:12px;background:#fff;border-radius:22px;padding:10px 14px;box-shadow:0 5px 0 #0002;text-align:left;color:var(--ink)}
+.pbtn:active{transform:translateY(3px)}
+.pbtn .av{width:70px;height:70px;border-radius:50%;background:linear-gradient(#cfe9ff,#eaf7ff);display:grid;place-items:center;overflow:hidden;flex:none}
+.pbtn .av img{width:100%;height:100%;object-fit:contain;object-position:bottom;transform:scale(1.15)}
+.pbtn .av.q{font-size:36px;font-weight:900;color:#7b4fe0}
+.pbtn .pn{font-size:24px;font-weight:900;display:block}
+.pbtn small{display:block;color:#777;font-weight:700;font-size:13px}
+.pedit{width:52px;border-radius:18px;background:#fff;font-size:22px;box-shadow:0 5px 0 #0002}
+.nm{width:100%;font-size:28px;font-weight:800;text-align:center;padding:14px;border-radius:20px;border:4px solid #c9b8ff;font-family:inherit;color:var(--ink)}
+.nm:focus{outline:none;border-color:#7b4fe0}
+.modal{position:fixed;inset:0;background:#0008;display:grid;place-items:center;z-index:80;padding:16px}
+.mbox{background:#fff;border-radius:24px;padding:18px;width:min(380px,100%);display:flex;flex-direction:column;gap:10px}
+.adv{text-align:center;line-height:1.1}
+.adv b{font-size:26px;font-weight:900;color:#4a2fbd;text-shadow:0 2px 0 #fff}
+.adv small{display:block;color:#5a5a8a;font-weight:800;font-size:13px;margin-top:2px}
+.sec{font-weight:900;font-size:17px;margin:2px 2px 0}
+.sec small{color:#6b6590;font-weight:700;font-size:12px;margin-left:6px}
+.grid3{grid-template-columns:repeat(3,1fr)}
+.a-bag{background:#f0a020}
+.pcard.locked{background:#ece8fb}
+.pcard.locked .pimg canvas{position:absolute;left:15px;bottom:0;width:120px;height:120px}
+.gearg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.gi{background:#fff;border-radius:14px;padding:6px 2px;text-align:center;font-size:11px;font-weight:800}
+.gi img{width:54px;height:54px;object-fit:contain}
+.gi.off img{filter:brightness(0) opacity(.22)}
+
+/* ================= v7: dreamy fairytale theme, landscape (iPad), maps ================= */
+body{font-family:'Baloo 2','Nunito','Microsoft YaHei','PingFang SC',system-ui,sans-serif;background:linear-gradient(180deg,#bfe7ff 0%,#d9d2ff 48%,#ffd9ec 100%) fixed;overflow-x:hidden}
+.sky{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.sky .cl{position:absolute;left:-140px;font-size:70px;opacity:.8;animation:drift linear infinite}
+.sky .st{position:absolute;animation:twinkle 2.6s ease-in-out infinite}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 300px))}}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.25) rotate(20deg)}}
+#app{position:relative;z-index:1}
+.info,.qcard,.mbox,.pcard,.pbtn,.icard,.mcard,.tab,.opt,.chip,.pill,.skrow,.gi,.card2{background:rgba(255,255,255,.9);border:3px solid #fff;box-shadow:0 8px 20px rgba(130,90,210,.22)}
+.pcard.locked{background:rgba(236,232,251,.92)}
+.tab.on{background:linear-gradient(#9b6bff,#7b4fe0);color:#fff}
+.opt{border-radius:26px}
+.opt.good{background:linear-gradient(#4fd68a,#27ae60)}
+.next,.sbtn,.abtn,.evo,.buy,.go2{box-shadow:inset 0 3px 0 #fff8,inset 0 -5px 0 #0002,0 8px 16px rgba(90,45,189,.32)!important}
+.title,.adv b{font-family:'Baloo 2',system-ui,sans-serif;color:#6a3fd1;text-shadow:0 3px 0 #fff,0 0 18px #fff}
+.stage{background:linear-gradient(#9ed8ff 0%,#dff3ff 55%,#bdf0b6 55%,#8fdc8a 100%);border:4px solid #fff;box-shadow:0 10px 26px rgba(130,90,210,.3)}
+.stage::before{content:"☁️";position:absolute;left:8%;top:10%;font-size:44px;opacity:.9}
+.chip{font-family:inherit}
+.pimg,.thumb{filter:drop-shadow(0 4px 6px #5a2dbd33)}
+.thumb{position:relative;overflow:hidden;flex:none}
+.thumb img{position:absolute;bottom:0;display:block;max-width:none}
+.pbtn .av img{transform:none!important;object-fit:fill}
+.pcard .thumb{margin:0 auto}
+.qlay{display:flex;flex-direction:column;gap:10px}
+.rpet{display:none}
+/* floaty crown / hat / sword */
+.pv .crown{animation:crownfloat 2.6s ease-in-out infinite;transform-origin:50% 100%;filter:drop-shadow(0 0 8px #ffd34d)}
+@keyframes crownfloat{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-14%) rotate(7deg)}}
+@keyframes hatfloat{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-13%) rotate(6deg)}}
+@keyframes swordfloat{0%,100%{transform:rotate(4deg) translateY(0)}50%{transform:rotate(20deg) translateY(-9%)}}
+.pv .eqhead.gold{filter:drop-shadow(0 0 10px #ffd34d) drop-shadow(0 0 3px #fff)}
+.pv .twk{position:absolute;z-index:7;font-size:calc(var(--size)*.08);animation:twinkle 1.6s ease-in-out infinite;pointer-events:none}
+/* maps */
+.map{position:relative;margin:0 auto;border-radius:30px;overflow:hidden;background-size:cover;background-position:center;box-shadow:0 12px 34px rgba(90,45,189,.45),0 0 0 6px #fffb;flex:none}
+.hud-top{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 10px;z-index:30;pointer-events:none}
+.hud-top>*{pointer-events:auto}
+.map .adv b{font-size:calc(var(--mh)*.045)}
+.map .adv small{font-size:calc(var(--mh)*.02)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.chips .chip{font-size:calc(var(--mh)*.024)}
+.house{position:absolute;transform:translate(-50%,-50%);width:calc(var(--mh)*.3);height:calc(var(--mh)*.3);background:none;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0}
+.house::before{content:"✨";position:absolute;left:50%;top:6%;font-size:calc(var(--mh)*.05);animation:twinkle 1.8s infinite}
+.hlab{position:relative;display:flex;align-items:center;gap:6px;color:#fff;background:var(--hc);border:3px solid #fff;border-radius:999px;padding:calc(var(--mh)*.006) calc(var(--mh)*.018);font-weight:900;font-size:calc(var(--mh)*.03);white-space:nowrap;box-shadow:0 5px 0 #0003,0 0 20px var(--hc);animation:bob 2.2s ease-in-out infinite}
+.hlab small{font-size:.62em;background:#fff;color:var(--hc);border-radius:10px;padding:0 6px}
+.hlab .x2{position:absolute;right:-8px;top:-14px;background:#ff3d71;color:#fff;border-radius:12px;padding:0 6px;font-size:.55em;border:2px solid #fff}
+.house:active .hlab{transform:scale(.94)}
+.house.s-bm{--hc:#f0502d}.house.s-en{--hc:#2f80ed}.house.s-math{--hc:#1fae5e}.house.s-zh{--hc:#9b51e0}
+.petspot{position:absolute;transform:translate(-50%,-86%);z-index:12}
+.petspot .evoprev{position:absolute;left:92%;bottom:8%;transform:scale(.86);transform-origin:left bottom}
+.map.p .petspot .evoprev{transform:scale(.95)}
+.card2{position:absolute;left:50%;bottom:calc(var(--mh)*.02);transform:translateX(-50%);width:calc(var(--mh)*.5);border-radius:22px;padding:8px 12px;z-index:30}
+.card2 .pname{font-size:calc(var(--mh)*.032);gap:6px}
+.card2 .lv{font-size:.5em}
+.card2 .stline{font-size:calc(var(--mh)*.021)}
+.card2 .bar{height:20px}.card2 .bar span{font-size:12px;line-height:20px}
+.card2 .eqs{width:26px;height:26px;font-size:13px;border-radius:8px}.card2 .eqs img{width:22px;height:22px}
+.card2 .sub{font-size:11px;padding:1px 7px}
+.card2 .evo{width:100%;font-size:calc(var(--mh)*.026);padding:6px;border-radius:16px;margin-top:4px}
+.dock{position:absolute;left:calc(var(--mh)*.02);bottom:calc(var(--mh)*.02);display:flex;flex-direction:column;gap:8px;z-index:30}
+.dock .abtn{width:calc(var(--mh)*.125);height:calc(var(--mh)*.125);min-width:62px;min-height:62px;border-radius:50%;padding:0;justify-content:center;border:4px solid #fff;font-size:calc(var(--mh)*.045)}
+.dock .abtn b{font-size:calc(var(--mh)*.02)}
+.under{display:flex;flex-direction:column;gap:10px;width:min(640px,100%);margin:10px auto 0}
+.under .card2{position:static;transform:none;width:auto}
+.under .dock{position:static;flex-direction:row}
+.under .dock .abtn{flex:1;width:auto;height:auto;border-radius:20px;padding:10px 4px;font-size:30px}
+.under .dock .abtn b{font-size:15px}
+/* battle map */
+.spot{position:absolute;width:var(--d);height:var(--d);transform:translate(-50%,-74%);z-index:10;background:none;padding:0}
+.spot img{position:relative;width:100%;height:100%;object-fit:contain;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 4px 3px #0005)}
+.sring{position:absolute;left:50%;bottom:-4%;width:130%;height:34%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(#fffc,#fff0 70%)}
+.spot.fresh .sring{box-shadow:0 0 22px 12px #ffe36a;animation:pulse 1.5s ease-in-out infinite}
+.spot.lock img{filter:grayscale(1) brightness(.55) drop-shadow(0 4px 3px #0005)}
+.spot.boss .sring{box-shadow:0 0 26px 14px #ff9ad6}
+.spot.boss.lock .sring{box-shadow:0 0 14px 6px #fff6}
+.slab{position:absolute;left:50%;bottom:-20%;transform:translateX(-50%);background:#fff;border-radius:12px;padding:0 9px;font-size:calc(var(--mh)*.024);font-weight:900;white-space:nowrap;box-shadow:0 3px 0 #0003;color:#5a2dbd}
+.spot .tower{display:grid;place-items:center;width:100%;height:100%;font-size:calc(var(--d)*.7);position:relative;animation:bob 2.4s ease-in-out infinite}
+.hud-hint{position:absolute;left:50%;bottom:calc(var(--mh)*.02);transform:translateX(-50%);background:#fffd;border-radius:999px;padding:4px 16px;font-weight:900;color:#6a3fd1;font-size:calc(var(--mh)*.026);box-shadow:0 4px 0 #0002;z-index:30;white-space:nowrap}
+.hud-back{position:absolute;left:12px;top:10px;z-index:31}
+.map.p[data-scr=battle] .hud-top{flex-direction:row;justify-content:flex-end;padding-left:110px}
+#app:has(.map){min-height:100vh;justify-content:center}
+.map .hud-top .chip{padding:calc(var(--mh)*.008) calc(var(--mh)*.02)}
+.map .icon-btn{width:calc(var(--mh)*.06);height:calc(var(--mh)*.06);min-width:34px;min-height:34px;font-size:calc(var(--mh)*.03)}
+.fight{align-items:center;text-align:center}
+.fight .fimg{width:150px;height:150px;object-fit:contain;animation:bob 2.4s ease-in-out infinite}
+.lockmsg{background:#ffe9e9;color:#c0392b;border-radius:14px;padding:8px 12px;font-weight:800}
+/* iPad / any landscape screen */
+@media (orientation:landscape) and (min-width:760px){
+  #app{max-width:1220px;padding:10px 18px}
+  .qlay{display:grid;grid-template-columns:42% 1fr;gap:18px;align-items:start}
+  .qleft{position:sticky;top:8px;display:flex;flex-direction:column;gap:10px}
+  .rpet{display:flex;height:250px}
+  .pgrid{grid-template-columns:repeat(3,1fr)}
+  .items{grid-template-columns:repeat(4,1fr)}
+  .gearg{grid-template-columns:repeat(6,1fr)}
+  .plist{max-width:640px;margin:0 auto;width:100%}
+  .title{font-size:32px}
+  .opt{font-size:26px;min-height:76px}
+  .qtext{font-size:27px}
+  .bscene{min-height:250px}
+  .mimg{width:215px;height:215px}
+  .bscene{min-height:340px}
+}
+
+/* ================= v9: spacing, lively pet, desktop + mobile friendly ================= */
+.qright{display:flex;flex-direction:column;gap:18px}
+.qright .qcard{padding:20px 16px;margin-bottom:6px}
+.opts{gap:14px}
+.fb{margin-top:2px}
+.opt{position:relative}
+@media (hover:hover){
+  .opt::before{content:attr(data-n);position:absolute;left:14px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:#efe9ff;color:#7b4fe0;font-size:15px;font-weight:900;display:grid;place-items:center}
+  button{cursor:pointer}
+  .opt:hover,.pcard:hover,.pbtn:hover,.icard:hover,.tab:hover,.pill:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(130,90,210,.3)}
+  .next:hover,.sbtn:hover,.abtn:hover,.evo:hover,.buy:hover,.ghost:hover{filter:brightness(1.07);transform:translateY(-2px)}
+  .house:hover .hlab{transform:scale(1.08)}
+  .spot:hover img{transform:scale(1.1)}
+}
+button:focus-visible,input:focus-visible{outline:4px solid #7b4fe0;outline-offset:2px}
+#app{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));padding-bottom:max(24px,env(safe-area-inset-bottom))}
+#app:has(.map){max-width:none}
+.opt,.next,.sbtn,.abtn,.tab,.pill,.buy,.house,.spot{touch-action:manipulation}
+/* body animation keeps the P50 "bigger" scale (the old float animation overwrote it) */
+.pv .body{--sc:1;animation:bodybob 2s ease-in-out infinite}
+.pv.t50 .body{--sc:1.1;transform:none}
+@keyframes bodybob{0%,100%{transform:translateY(0) scale(var(--sc))}50%{transform:translateY(-3%) scale(var(--sc))}}
+/* cheer: hop + wave a flag + hearts; oops: shake the head */
+@keyframes hop{0%{transform:translateY(0) scale(var(--sc,1))}22%{transform:translateY(-24%) scale(calc(var(--sc,1)*.94),calc(var(--sc,1)*1.08))}48%{transform:translateY(0) scale(calc(var(--sc,1)*1.08),calc(var(--sc,1)*.92))}100%{transform:translateY(0) scale(var(--sc,1))}}
+@keyframes oops{0%,100%{transform:rotate(0) scale(var(--sc,1))}25%{transform:rotate(-7deg) scale(var(--sc,1))}75%{transform:rotate(7deg) scale(var(--sc,1))}}
+@keyframes wave{0%,100%{transform:rotate(-16deg)}50%{transform:rotate(18deg)}}
+@keyframes fxup{0%{opacity:0;transform:translateY(12px) scale(.4)}25%{opacity:1}100%{opacity:0;transform:translateY(-70px) scale(1.25)}}
+.pv.cheer .body{animation:hop .6s ease-out 3}
+.pv.idlehop .body{animation:hop .6s ease-out 1}
+.pv.oops .body{animation:oops .55s ease-in-out 1}
+.pv .flag{position:absolute;left:64%;bottom:44%;font-size:calc(var(--size)*.27);transform-origin:18% 100%;opacity:0;z-index:8;pointer-events:none}
+.pv.cheer .flag{opacity:1;animation:wave .42s ease-in-out 4}
+.pv .fx{position:absolute;opacity:0;font-size:calc(var(--size)*.14);z-index:9;pointer-events:none}
+.pv .fx1{left:14%;top:4%}.pv .fx2{left:72%;top:-2%}.pv .fx3{left:44%;top:-9%}
+.pv.cheer .fx{animation:fxup 1.3s ease-out forwards}
+.pv.cheer .fx2{animation-delay:.25s}.pv.cheer .fx3{animation-delay:.5s}
+.rpet{display:flex;height:150px;justify-content:center}
+.map.small .card2 .eqbar,.map.small .card2 .subs{display:none}
+.map.small .petspot .evoprev{transform:scale(.55);left:78%}
+.map.small .hud-top .adv small{display:none}
+.map.small .card2{width:calc(var(--mh)*.62)}
+@media (orientation:landscape) and (min-width:760px){ .rpet{height:250px} }
+@media (max-width:520px){
+  .qright .qcard{padding:16px 12px}
+  .opt{font-size:21px;padding:14px 6px}
+}
+
+/* ---- v11: ONE random reaction per right answer: hop / flag / hearts / stars / run / love ---- */
+.pv .fxh,.pv .fxs,.pv .bigheart{position:absolute;opacity:0;z-index:9;pointer-events:none;font-style:normal;font-size:calc(var(--size)*.15)}
+.pv .h1{left:10%;top:6%}.pv .h2{left:72%;top:0}.pv .h3{left:42%;top:-8%}
+.pv .s1{left:14%;top:2%}.pv .s2{left:70%;top:-4%}.pv .s3{left:42%;top:-12%}
+.pv .bigheart{left:36%;top:12%;font-size:calc(var(--size)*.32)}
+.pv.c-hearts .fxh,.pv.c-stars .fxs{animation:fxup 1.4s ease-out forwards}
+.pv.c-hearts .h2,.pv.c-stars .s2{animation-delay:.25s}.pv.c-hearts .h3,.pv.c-stars .s3{animation-delay:.5s}
+.pv.c-love .bigheart{animation:bigheart 1.5s ease-out forwards}
+@keyframes bigheart{0%{opacity:0;transform:scale(.3) translateY(14px)}22%{opacity:1;transform:scale(1.25)}50%{transform:scale(.95)}100%{opacity:0;transform:scale(1.6) translateY(-100px)}}
+.pv.c-love .body{animation:lovepulse .7s ease-in-out 2}
+@keyframes lovepulse{0%,100%{transform:scale(var(--sc,1))}50%{transform:scale(calc(var(--sc,1)*1.09),calc(var(--sc,1)*.93))}}
+.pv.c-hop .body{animation:hop .6s ease-out 3}
+.pv.c-flag .flag{opacity:1;animation:wave .42s ease-in-out 5}
+.pv.c-run .body{animation:runrun 1.7s linear 1}
+@keyframes runrun{
+ 0%{transform:translateX(0) translateY(0) scale(var(--sc,1))}
+ 8%{transform:translateX(10%) translateY(-7%) scale(var(--sc,1))}
+ 16%{transform:translateX(20%) translateY(0) scale(var(--sc,1))}
+ 24%{transform:translateX(30%) translateY(-7%) scale(var(--sc,1))}
+ 32%{transform:translateX(40%) translateY(0) scale(var(--sc,1))}
+ 38%{transform:translateX(40%) translateY(-4%) scale(calc(var(--sc,1)*-1),var(--sc,1))}
+ 46%{transform:translateX(30%) translateY(-7%) scale(calc(var(--sc,1)*-1),var(--sc,1))}
+ 54%{transform:translateX(20%) translateY(0) scale(calc(var(--sc,1)*-1),var(--sc,1))}
+ 62%{transform:translateX(10%) translateY(-7%) scale(calc(var(--sc,1)*-1),var(--sc,1))}
+ 70%{transform:translateX(0) translateY(0) scale(calc(var(--sc,1)*-1),var(--sc,1))}
+ 78%{transform:translateX(-8%) translateY(-7%) scale(calc(var(--sc,1)*-1),var(--sc,1))}
+ 86%{transform:translateX(0) translateY(0) scale(calc(var(--sc,1)*-1),var(--sc,1))}
+ 92%{transform:translateX(0) translateY(-5%) scale(var(--sc,1))}
+ 100%{transform:translateX(0) translateY(0) scale(var(--sc,1))}}
+</style>
+</head>
+<body>
+<div class="sky" id="sky"></div>
+<div id="app"></div>
+<div class="flash" id="flash"></div>
+
+<script>
+/* ================= data ================= */
+const PETS = {
+  aguomon:{name:'Aguomon',emoji:'🐲'},
+  angelmon:{name:'Angelmon',emoji:'😇'},
+  angelwoman:{name:'Angelwoman',emoji:'👼'},
+  treemon:{name:'Treemon',emoji:'🍄'},
+  beetle:{name:'Beetlemon',emoji:'🪲'},
+  phoenix:{name:'Phoenixmon',emoji:'🔥'}
+};
+// top-of-figure fraction (for crown placement) per image
+const TOP = {"aguomon_1":0.566,"aguomon_2":0.277,"aguomon_3":0.034,"angelmon_1":0.586,"angelmon_2":0.262,"angelmon_3":0.033,"angelwoman_1":0.633,"angelwoman_2":0.331,"angelwoman_3":0.031,"treemon_1":0.528,"treemon_2":0.388,"treemon_3":0.058,"beetle_1":0.634,"beetle_2":0.389,"beetle_3":0.031,"phoenix_1":0.714,"phoenix_2":0.452,"phoenix_3":0.1};
+const HEADY = {angelmon_3:.15,angelwoman_3:.14,beetle_3:.2,phoenix_3:.19};   // head-top fraction where it differs from the figure top
+const SUBJ = {
+  bm:{name:'BM',label:'Bahasa Melayu',cls:'s-bm',lang:'ms-MY',date:'2026-11-17',emoji:'🌺'},
+  en:{name:'English',label:'English',cls:'s-en',lang:'en-US',date:'2026-11-18',emoji:'🔤'},
+  math:{name:'Math',label:'Maths',cls:'s-math',lang:'en-US',date:'2026-11-19',emoji:'🔢'},
+  zh:{name:'Chinese',label:'华文 Mandarin',cls:'s-zh',lang:'zh-CN',date:'2026-11-20',emoji:'🀄'}
+};
+const SKEYS = ['bm','en','math','zh'];
+const EVO = {1:{stars:50,each:3},2:{stars:250,each:12}};      // requirement to leave stage 1 / 2 (made faster so a 6yo stays engaged)
+const CAP = {1:10,2:40,3:Infinity};                          // power cap per stage
+
+/* ================= state ================= */
+const KEY='k2game_v1';
+let mem=null;
+function loadRaw(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return mem}
+let G=loadRaw();
+if(!G)G={players:[],active:null};
+else if(!G.players)G={players:[{id:'p1',name:'Player 1',data:G}],active:null};   // old single-player save -> first player
+function save(){try{localStorage.setItem(KEY,JSON.stringify(G))}catch(e){mem=JSON.parse(JSON.stringify(G))}}
+let S={current:null,pets:{},sound:true,q:{}};                                     // = the active player's data (swapped on login)
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const UNLOCK_AT=[100,250,500,800,1200];                                            // total stars needed for the 2nd..6th fighter
+function initUnlock(){S.unlocked={};Object.keys(S.pets).forEach(k=>S.unlocked[k]=1);if(S.current)S.unlocked[S.current]=1;S.order=Object.keys(PETS).filter(k=>!S.unlocked[k])}
+function login(id){const pl=G.players.find(p=>p.id===id);if(!pl)return false;G.active=id;S=pl.data;if(S.bankv!==3){S.q={};S.bankv=3}if(!S.unlocked)initUnlock();save();return true}
+function curPlayer(){return G.players.find(p=>p.id===G.active)}
+function addPlayer(name){const id='p'+Date.now().toString(36)+Math.floor(Math.random()*1000);G.players.push({id,name:String(name).trim().slice(0,12)||'Player',data:{current:null,pets:{},sound:true,q:{},bankv:3}});save();login(id);pickScreen(true)}
+function pet(k){const p=S.pets[k]||(S.pets[k]={stage:1,stars:0,correct:{bm:0,en:0,math:0,zh:0}});if(p.gems==null)p.gems=0;if(!p.owned)p.owned={};if(!p.equip)p.equip={};if(!p.sk)p.sk={atk:0,hp:0,luck:0,combo:0};if(!p.beat)p.beat={};if(p.tower==null)p.tower=0;return p}
+function cur(){return pet(S.current)}
+function totalStars(){return Object.values(S.pets).reduce((n,p)=>n+(p.stars||0),0)}
+function checkUnlocks(){const t=totalStars(),got=[];(S.order||[]).forEach((k,i)=>{if(!S.unlocked[k]&&t>=UNLOCK_AT[i]){S.unlocked[k]=1;got.push(k)}});if(got.length)save();return got}
+
+/* ================= power ================= */
+function needStars(n){ if(n<=30)return 5*(n-1); let t=145; for(let i=31;i<=n;i++)t+=5+(i-30); return t }
+function rawPower(stars){ let p=1; while(needStars(p+1)<=stars)p++; return p }
+function power(p){ return Math.min(rawPower(p.stars),CAP[p.stage]) }
+function canEvolve(p){ const r=EVO[p.stage]; if(!r)return false; return p.stars>=r.stars && SKEYS.every(k=>p.correct[k]>=r.each) }
+
+/* ================= items / stats / monsters ================= */
+const ITEMS={
+ sword_1:{n:'Crystal Sword',slot:'sword',cat:'sword',price:8,atk:5},
+ sword_2:{n:'Flame Sword',slot:'sword',cat:'sword',price:12,atk:8},
+ sword_3:{n:'Blue Blade',slot:'sword',cat:'sword',price:18,atk:12},
+ sword_4:{n:'Rainbow Blade',slot:'sword',cat:'sword',price:25,atk:18},
+ cape_1:{n:'Orange Cape',slot:'cape',cat:'cape',price:6,hp:10},
+ cape_2:{n:'Blue Cape',slot:'cape',cat:'cape',price:10,hp:15},
+ cape_3:{n:'Cream Cape',slot:'cape',cat:'cape',price:15,hp:20},
+ cape_4:{n:'Purple Cape',slot:'cape',cat:'cape',price:22,hp:30},
+ outfit_1:{n:'Orange Outfit',slot:'outfit',cat:'outfit',price:8,atk:2,hp:10},
+ outfit_2:{n:'Blue Outfit',slot:'outfit',cat:'outfit',price:12,atk:3,hp:15},
+ outfit_3:{n:'Cream Outfit',slot:'outfit',cat:'outfit',price:18,atk:4,hp:20},
+ outfit_4:{n:'Purple Outfit',slot:'outfit',cat:'outfit',price:25,atk:6,hp:30},
+ cap:{n:'Cap',slot:'head',cat:'acc',price:5,atk:3},
+ crown:{n:'Crown',slot:'head',cat:'acc',price:30,atk:8},
+ glasses:{n:'Sunglasses',slot:'face',cat:'acc',price:12,atk:2},
+ scarf:{n:'Scarf',slot:'neck',cat:'acc',price:10,hp:15},
+ shoes:{n:'Sneakers',slot:'feet',cat:'acc',price:15,luck:10}
+};
+const CATS={sword:'⚔️ Swords',cape:'🧥 Capes',outfit:'👕 Outfits',acc:'✨ Extras'};
+const SLOTS=['sword','cape','outfit','head','face','neck','feet'];
+const SLOT_EMO={sword:'⚔️',cape:'🧥',outfit:'👕',head:'🧢',face:'🕶️',neck:'🧣',feet:'👟'};
+function bonusText(it){const a=[];if(it.atk)a.push('⚔️+'+it.atk);if(it.hp)a.push('❤️+'+it.hp);if(it.luck)a.push('💎+'+it.luck+'%');return a.join(' ')}
+function eqSum(p){const a={atk:0,hp:0,luck:0,combo:0};Object.values(p.equip).forEach(id=>{const it=ITEMS[id];if(it)for(const k in a)a[k]+=it[k]||0});return a}
+function stats(p){const P=power(p),e=eqSum(p);return{atk:10+2*P+e.atk,hp:50+5*P+e.hp,luck:e.luck}}
+const MON={
+ slime:{n:'Slime',hp:10,hit:6,gems:5,req:1,reg:'forest'},
+ mushroom:{n:'Mushroom',hp:10,hit:8,gems:8,req:1,reg:'forest'},
+ beetle:{n:'Beetle',hp:10,hit:10,gems:12,req:1,reg:'forest'},
+ boss_rock:{n:'Rock Giant',hp:15,hit:10,gems:25,req:8,reg:'forest',boss:1},
+ boss_thunder:{n:'Thunder Dragon',hp:15,hit:14,gems:35,req:15,reg:'ocean',boss:1},
+ jelly:{n:'Jellyfish',hp:10,hit:12,gems:15,req:12,reg:'ocean'},
+ crab:{n:'Crab',hp:10,hit:13,gems:18,req:12,reg:'ocean'},
+ urchin:{n:'Urchin',hp:10,hit:15,gems:20,req:14,reg:'ocean'},
+ lavaslime:{n:'Lava Slime',hp:10,hit:16,gems:22,req:22,reg:'volcano'},
+ flame:{n:'Flame Sprite',hp:10,hit:18,gems:25,req:24,reg:'volcano'},
+ turtle:{n:'Rock Turtle',hp:10,hit:20,gems:28,req:26,reg:'volcano'},
+ boss_fire:{n:'Fire Horn',hp:15,hit:18,gems:40,req:30,reg:'volcano',boss:1}
+};
+Object.keys(MON).forEach(k=>{MON[k].key=k;MON[k].img=k});
+const REG={forest:'🌲 Forest',ocean:'🌊 Ocean',volcano:'🌋 Volcano'};
+function towerMon(f){const boss=f%10===0;const bk=['boss_rock','boss_thunder','boss_fire'][(f/10-1)%3];const base=['slime','mushroom','beetle'][f%3];const img=boss?bk:base;
+ return {key:'tower',tower:f,boss:boss?1:0,img,n:boss?`${MON[bk].n} (Floor ${f} Boss)`:`${MON[base].n} (Floor ${f})`,hp:boss?20:10+Math.floor(f/5),hit:Math.round((6+f*1.4)*(boss?1.6:1)),gems:5+f+(boss?30:0)}}
+
+/* ================= exam countdown ================= */
+function today0(){const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
+function daysTo(s){const [y,m,d]=s.split('-').map(Number);return Math.round((new Date(y,m-1,d)-today0())/86400000)}
+function nextExam(){ for(const k of SKEYS){ if(daysTo(SUBJ[k].date)>=0) return k } return null }
+
+/* ================= audio ================= */
+function speak(text,lang){ if(!S.sound||!window.speechSynthesis)return; try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=.85;speechSynthesis.speak(u)}catch(e){} }
+let AC=null;
+function beep(freqs,dur=.12){ if(!S.sound)return; try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();let t=AC.currentTime;freqs.forEach(f=>{const o=AC.createOscillator(),g=AC.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+dur);t+=dur*.9})}catch(e){} }
+const sndOK=()=>beep([660,880]), sndNO=()=>beep([220],.2), sndUP=()=>beep([523,659,784,1046],.14);
+
+/* ================= helpers ================= */
+const $=s=>document.querySelector(s);
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function popText(t){const d=document.createElement('div');d.className='pop';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
+function confetti(n=30){const em=['⭐','✨','🎉','💎','🌟'];for(let i=0;i<n;i++){const c=document.createElement('div');c.className='confetti';c.textContent=pick(em);c.style.left=rnd(100)+'vw';c.style.animationDuration=(1.6+Math.random()*1.8)+'s';c.style.animationDelay=(Math.random()*.6)+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),4000)}}
+
+function petHTML(key,stage,P,size){
+  let cls='';
+  if(P>=10)cls+=' t10'; if(P>=20)cls+=' t20'; if(P>=30)cls+=' t30'; if(P>=40)cls+=' t40'; if(P>=50)cls+=' t50'; if(P>=100)cls+=' t100';
+  const eq=(S.pets[key]&&S.pets[key].equip)||{};
+  const ft=TOP[key+'_'+stage]||0;
+  const hy=HEADY[key+'_'+stage], fh=(hy==null?ft:hy);          // where the head really starts (wings/horns stick out above it)
+  const top=Math.max(0,fh*100-6);                              // items live inside .body, so they use un-scaled coordinates
+  if(eq.head)cls+=' hashead';
+  let sp='';const se=['✨','⭐','💫'];
+  for(let i=0;i<14;i++)sp+=`<div class="spark ${i<6?'a':'b'}" style="left:${12+(i*37)%72}%;bottom:${35+(i*23)%45}%;font-size:${16+(i*5)%14}px;animation-delay:${(i*0.37)%2.4}s">${se[i%3]}</div>`;
+  let fl='';for(let i=0;i<6;i++)fl+=`<div class="flame" style="left:${48+i*2}%;bottom:${12+i*7}%;animation-delay:${(i*.18)}s">🔥</div>`;
+  const figH=Math.max(.2,1-ft-.03);
+  const swW=Math.min(.42,figH*.6),swL=(.5+figH*.38-swW/2)*100;
+  const hdW=Math.min(.26,Math.max(.14,figH*.5)),hdTop=(fh-hdW*.4)*100;
+  const hd=eq.head?`<img class="eqhead${eq.head==='crown'?' gold':''}" src="assets/items/${eq.head}.png" style="top:${hdTop}%;width:${hdW*100}%;margin-left:-${hdW*50}%" alt=""><i class="twk" style="left:${50+hdW*38}%;top:${hdTop-3}%">✨</i><i class="twk" style="left:${50-hdW*52}%;top:${hdTop+4}%;animation-delay:.7s">⭐</i>`:'';
+  const sw=eq.sword?`<img class="eqsword" src="assets/items/${eq.sword}.png" style="left:${swL}%;width:${swW*100}%" alt="">`:'';
+  const pc=P>=100?'#ff6ad5':P>=50?'#fff0a0':P>=40?'#ff8a3d':P>=30?'#ffd34d':P>=20?'#b06bff':'#35a7ff';
+  return `<div class="pv${cls}" style="--size:${size}px;--pc:${pc}"><div class="rainbow"></div><div class="pillar"></div><div class="ring"></div><div class="body"><img src="assets/pets/${key}_${stage}.png" alt="">${hd}${sw}<div class="crown" style="top:${top}%">👑</div><div class="flag">🚩</div><i class="fxh h1">💖</i><i class="fxh h2">💕</i><i class="fxh h3">💖</i><i class="fxs s1">✨</i><i class="fxs s2">⭐</i><i class="fxs s3">🌟</i><i class="bigheart">💗</i></div>${sp}${fl}</div>`;
+}
+function thumb(key,stage,box){                                   // the whole creature, never cropped (Bag / player avatars)
+  const ft=TOP[key+'_'+stage]||0,fh=Math.max(.15,1-ft-.03),z=Math.min(2.1,.98/fh);
+  const w=Math.round(box*z);
+  return `<div class="thumb" style="width:${box}px;height:${box}px"><img src="assets/pets/${key}_${stage}.png" alt="" style="width:${w}px;height:${w}px;left:50%;margin-left:-${Math.round(w/2)}px;bottom:-${Math.round(w*.03)+1}px"></div>`;
+}
+
+/* ================= question banks ================= */
+function C(text,a,o,emoji,extra){return Object.assign({t:'choice',text,a,opts:[a,...o],emoji:emoji||''},extra||{})}
+function O(text,words,sep,lang){return {t:'order',text,words,a:words.join(sep),sep,lang}}
+const SC={
+ on:'<div class="scene col"><span>🐱</span><span>📦</span></div>',
+ under:'<div class="scene col"><span>📦</span><span>🐱</span></div>',
+ inn:'<div class="scene"><span class="inbox">📦<i>🐱</i></span></div>',
+ next:'<div class="scene"><span>🐱</span><span>📦</span></div>',
+ behind:'<div class="scene"><span>🐱</span><span class="fr">📦</span></div>'
+};
+
+const BANK = {
+en:[
+ C('Which word?','house',['farm','garden'],'🏠'),C('Which word?','flat',['shop','tree'],'🏢'),
+ C('Where do you sleep?','bedroom',['kitchen','bathroom'],'🛏️'),C('Where do you cook?','kitchen',['bedroom','garden'],'🍳'),
+ C('Where do you take a bath?','bathroom',['kitchen','bedroom'],'🛁'),C('Where do you watch TV?','living room',['kitchen','bathroom'],'📺'),
+ C('Who is this?','teacher',['doctor','farmer'],'👩‍🏫'),C('Who is this?','doctor',['teacher','fireman'],'👩‍⚕️'),
+ C('Who is this?','policeman',['fireman','farmer'],'👮'),C('Who is this?','fireman',['policeman','cook'],'👨‍🚒'),
+ C('Who is this?','farmer',['doctor','teacher'],'👨‍🌾'),C('Who is this?','cook',['farmer','policeman'],'👨‍🍳'),
+ C('Which animal?','cow',['pig','sheep'],'🐄'),C('Which animal?','sheep',['cow','hen'],'🐑'),C('Which animal?','hen',['duck','pig'],'🐔'),
+ C('Which animal?','pig',['horse','cow'],'🐖'),C('Which animal?','horse',['sheep','pig'],'🐴'),C('Which animal?','duck',['hen','cow'],'🦆'),
+ C('Which word?','flower',['tree','snail'],'🌸'),C('Which word?','tree',['flower','bee'],'🌳'),C('Which word?','butterfly',['bee','snail'],'🦋'),
+ C('Which word?','bee',['butterfly','snail'],'🐝'),C('Which word?','snail',['bee','butterfly'],'🐌'),
+ C('The sun is ___ .','hot',['cold','wet'],'☀️'),C('The ant is ___ .','small',['big','tall'],'🐜'),
+ C('The giraffe is ___ .','tall',['short','round'],'🦒'),C('The elephant is ___ .','big',['small','thin'],'🐘'),
+ C('I have a pen. It is ___ pen.','my',['your','his']),C('She has a bag. It is ___ bag.','her',['his','my']),
+ C('He has a ball. It is ___ ball.','his',['her','your']),C('You have a cap. It is ___ cap.','your',['my','her']),
+ C('___ is this? It is a cow.','What',['Who','Where']),C('___ is he? He is my father.','Who',['What','Where']),
+ C('___ is the cat? It is on the bed.','Where',['Who','What']),
+ C('I have a cat ___ a dog.','and',['but','or']),C('I like milk ___ I do not like tea.','but',['and','or']),C('Do you want tea ___ milk?','or',['and','but']),
+ C('The cat is ___ the box.','on',['in','under'],'',{scene:SC.on}),C('The cat is ___ the box.','under',['on','behind'],'',{scene:SC.under}),
+ C('The cat is ___ the box.','in',['on','under'],'',{scene:SC.inn}),C('The cat is ___ the box.','next to',['on','in'],'',{scene:SC.next}),
+ C('The cat is ___ the box.','behind',['in','on'],'',{scene:SC.behind}),
+ O('Put the words in order.',['I','like','apples'],' ','en-US'),O('Put the words in order.',['The','cow','is','big'],' ','en-US'),
+ O('Put the words in order.',['She','is','a','doctor'],' ','en-US'),O('Put the words in order.',['The','cat','is','under','the','bed'],' ','en-US'),
+ O('Put the words in order.',['I','see','a','bee'],' ','en-US')
+]};
+/* ===== BM + 华文 banks, written from the textbook photos (2026-11-11) ===== */
+const BMV=(e,a,w,t)=>C(t||'Gambar apakah ini?',a,w,e);
+const PASS=(p,l)=>l.map(([q,a,w])=>C(q,a,w,'',{passage:p}));
+const PL='Tempat apakah ini?',WHO='Siapakah ini?',APA='Apakah ini?';
+const PJ=[['🎹','se___ piano','buah',['helai','ekor']],['🛁','se___ tuala','helai',['buah','biji']],['🥚','empat ___ telur','biji',['ekor','batang']],['🕯️','tiga ___ lilin','batang',['biji','helai']],['🐸','lima ___ katak','ekor',['buah','biji']],['💑','se___ pengantin','pasang',['orang','buah']],['📮','se___ posmen','orang',['ekor','buah']],['🍪','beberapa ___ biskut','keping',['ekor','helai']],['👩‍🏫','se___ guru','orang',['ekor','batang']],['👮','dua ___ polis','orang',['ekor','biji']],['🐱','empat ___ kucing','ekor',['orang','buah']],['🐦','tiga ___ burung','ekor',['orang','biji']],['🍈','lima ___ durian','biji',['ekor','pasang']],['🧦','empat ___ stoking','pasang',['buah','biji']],['🖼️','se___ gambar','keping',['ekor','orang']],['🦁','tiga ___ singa','ekor',['orang','buah']],['🪑','dua ___ kerusi','buah',['ekor','orang']],['🤧','enam ___ sapu tangan','helai',['buah','ekor']],['🗄️','dua ___ almari','buah',['ekor','helai']],['🏫','tiga ___ sekolah','buah',['orang','pasang']],['⚪','se___ guli','biji',['ekor','buah']],['🩴','dua ___ selipar','pasang',['buah','biji']],['🦯','se___ tongkat','batang',['ekor','buah']],['🚗','lima ___ kereta','buah',['ekor','helai']],['🍃','dua ___ daun','helai',['buah','ekor']],['🪵','tiga ___ kayu','batang',['biji','ekor']],['🎫','empat ___ tiket','keping',['ekor','orang']],['👶','se___ bayi','orang',['ekor','buah']],['👀','se___ mata','pasang',['biji','helai']]].map(([e,t,a,w])=>C('Isi penjodoh bilangan:  '+t,a,w,e));
+
+BANK.bm=[
+/* ---- Unit 1 Di Bandar (Buku Bacaan p2-5) ---- */
+BMV('🏤','pejabat pos',['balai polis','pasar raya'],PL),
+BMV('🚔','balai polis',['balai bomba','muzium'],PL),
+BMV('🚒🏢','balai bomba',['balai polis','stesen minyak'],PL),
+BMV('⛽','stesen minyak',['perpustakaan','pasar raya'],PL),
+BMV('🛒','pasar raya',['pejabat pos','muzium'],PL),
+BMV('📚','perpustakaan',['muzium','balai polis'],PL),
+BMV('🏛️','muzium',['perpustakaan','pasar raya'],PL),
+...PASS('Kami menuju ke muzium di bandar. Dalam perjalanan, kami nampak balai polis, balai bomba, perpustakaan dan pasar raya. Akhirnya, kami pun sampai di muzium.',[
+ ['Kami menuju ke mana?','muzium',['hospital','sekolah']],
+ ['Akhirnya, kami sampai di ...','muzium',['pasar raya','balai bomba']],
+ ['Muzium berada di ...','bandar',['kampung','laut']]]),
+C('Kamu hendak ke mana?','Saya hendak ke pasar raya.',['Saya sudah makan.','Nama saya Ali.'],'🗣️'),
+C('Kamu hendak ke mana?','Saya hendak ke hospital.',['Saya suka warna biru.','Saya ada seekor kucing.'],'🏥'),
+C('Mereka hendak ke mana?','Mereka hendak ke perpustakaan.',['Mereka sedang tidur.','Mereka suka makan nasi.'],'📚'),
+C('Mereka hendak ke mana?','Mereka hendak ke pejabat pos.',['Mereka naik bas.','Mereka ada dua ekor kucing.'],'🏤'),
+C('Apakah maksud tanda ini?','Ada lampu isyarat di hadapan.',['Berhenti di simpang jalan.','Kawasan kanak-kanak melintas.'],'🚦'),
+C('Apakah maksud tanda ini?','Berhenti di simpang jalan.',['Ada lampu isyarat di hadapan.','Dilarang membelok ke kiri.'],'🛑'),
+C('Apakah maksud tanda ini?','Dilarang membelok ke kiri.',['Dilarang membelok ke kanan.','Berhenti di simpang jalan.'],'⬅️🚫'),
+C('Apakah maksud tanda ini?','Dilarang membelok ke kanan.',['Dilarang membelok ke kiri.','Kawasan kanak-kanak melintas.'],'➡️🚫'),
+C('Apakah maksud tanda ini?','Kawasan kanak-kanak melintas.',['Ada lampu isyarat di hadapan.','Berhenti di simpang jalan.'],'🚸'),
+C('Lampu merah: kenderaan ...','berhenti',['bergerak','bersedia untuk berhenti'],'🔴'),
+C('Lampu kuning: kenderaan ...','bersedia untuk berhenti',['berhenti','sudah boleh bergerak'],'🟡'),
+C('Lampu hijau: kenderaan ...','sudah boleh bergerak',['berhenti','bersedia untuk berhenti'],'🟢'),
+C('Apabila lampu merah menyala, kita perlu berhenti dan ...','tunggu di tepi jalan raya',['melintas jalan raya','berlari di jalan'],'🚶'),
+C('Apabila lampu hijau menyala, kita boleh ...','melintas jalan raya',['tidur di jalan','bermain bola di jalan'],'🚶'),
+C('Sebelum melintas, pastikan tiada kenderaan bergerak dari sebelah ...','kiri dan kanan',['atas dan bawah','depan sahaja'],'👀'),
+/* ---- Unit 2 Kenderaan (p6-9) ---- */
+BMV('🚚','lori',['bas','van']),BMV('🚌','bas',['lori','kereta']),BMV('🚲','basikal',['motosikal','kereta']),
+BMV('🏍️','motosikal',['basikal','kereta']),BMV('🚗','kereta',['van','teksi']),BMV('🚐','van',['bas','kereta']),
+BMV('🚆','kereta api',['bas','kapal']),BMV('🚛','lori sampah',['lori','van']),BMV('🚕','teksi',['kereta','bas']),
+BMV('🚑','ambulans',['kereta polis','kereta bomba']),BMV('🚒','kereta bomba',['ambulans','kereta polis']),
+BMV('🚓','kereta polis',['ambulans','teksi']),BMV('🚁','helikopter',['kapal terbang','belon udara panas']),
+BMV('✈️','kapal terbang',['helikopter','kapal']),BMV('🎈','belon udara panas',['helikopter','kapal terbang']),
+BMV('⛵','perahu layar',['kapal','bot']),BMV('🚢','kapal',['bot','sampan']),BMV('🚤','bot',['sampan','kapal']),BMV('🛶','sampan',['bot','perahu layar']),
+C('Kenderaan di darat ialah ...','kereta api',['kapal','helikopter'],'🛣️'),
+C('Kenderaan di udara ialah ...','kapal terbang',['bas','bot'],'☁️'),
+C('Kenderaan di atas air ialah ...','perahu layar',['lori','kapal terbang'],'🌊'),
+C('Kapal terbang bergerak di ...','udara',['darat','atas air'],'✈️'),
+C('Perahu layar bergerak di ...','atas air',['darat','udara'],'⛵'),
+C('Kereta ada ___ roda.','empat',['dua','enam'],'🚗'),
+C('Kapal terbang ada ___ sayap.','dua',['empat','satu'],'✈️'),
+C('Perahu layar ada ___.','layar',['sayap','roda'],'⛵'),
+C('Bahagian kenderaan: lampu, pintu, roda dan ...','sayap',['kaki','ekor'],'🚗'),
+...PASS('Ibu dan Hadi menaiki bas untuk ke Kampung Selamat. Dalam perjalanan, Hadi nampak kereta api bergerak laju di landasan. Setelah itu, mereka menaiki teksi untuk ke rumah Pak Samad.',[
+ ['Ibu dan Hadi menaiki ... untuk ke Kampung Selamat.','bas',['teksi','kereta api']],
+ ['Hadi nampak apa di landasan?','kereta api',['bas','teksi']],
+ ['Mereka menaiki ... untuk ke rumah Pak Samad.','teksi',['bas','bot']]]),
+/* ---- Unit 3 Dunia Pekerjaan (p12-15) ---- */
+BMV('🎨','pelukis',['petani','posmen'],WHO),BMV('👨‍🍳','ketua tukang masak',['doktor','polis'],WHO),
+BMV('👨‍🌾','petani',['pelukis','askar'],WHO),BMV('👩‍⚕️','doktor',['jururawat','guru'],WHO),
+BMV('📮','posmen',['polis','petani'],WHO),BMV('👮','polis',['askar','ahli bomba'],WHO),
+BMV('💉','jururawat',['doktor','guru'],WHO),BMV('🪖','askar',['polis','petani'],WHO),
+BMV('👨‍🚒','ahli bomba',['polis','posmen'],WHO),
+C('Tugas askar menjaga ...','keamanan negara',['orang sakit','kenderaan'],'🪖'),
+C('Tugas jururawat menjaga ...','orang sakit',['keamanan negara','murid'],'💉'),
+C('Tugas mekanik ialah ...','membaiki kenderaan',['menjaga orang sakit','mengajar murid'],'🔧'),
+C('Tugas guru ialah ...','mengajar murid',['menjaga keamanan negara','membaiki kenderaan'],'👩‍🏫'),
+C('Encik Dafi seorang doktor gigi. Dia bekerja di ...','klinik gigi',['balai polis','kebun'],'🦷'),
+C('Puan Nora seorang polis. Dia bekerja di ...','balai polis',['klinik gigi','balai bomba'],'👮'),
+C('Puan Tan seorang ahli bomba. Dia bekerja di ...','balai bomba',['kebun','klinik gigi'],'🚒'),
+C('Encik Agus seorang petani. Dia bekerja di ...','kebun',['balai polis','klinik gigi'],'🌱'),
+C('Cita-cita saya ingin menjadi doktor haiwan. Saya hendak ...','merawat haiwan',['memadamkan kebakaran','menangkap orang jahat'],'🐱'),
+C('Cita-cita saya ingin menjadi ahli bomba. Saya hendak ...','memadamkan kebakaran',['merawat haiwan','menangkap orang jahat'],'🔥'),
+C('Cita-cita saya ingin menjadi polis. Saya hendak ...','menangkap orang jahat',['merawat haiwan','memadamkan kebakaran'],'🚓'),
+/* ---- Unit 4 Mesin dan Teknologi (p16-19) ---- */
+BMV('🧊','peti sejuk',['pendingin udara','dapur gas'],APA),BMV('❄️','pendingin udara',['peti sejuk','mesin basuh'],APA),
+BMV('🍳','dapur gas',['peti sejuk','ketuhar'],APA),BMV('🧺','mesin basuh',['pengisar','periuk nasi'],APA),
+BMV('🍚','periuk nasi',['pengukus','pengisar'],APA),BMV('🥤','pengisar',['periuk nasi','ketuhar'],APA),
+BMV('🧹','pembersih vakum',['pengering rambut','seterika'],APA),BMV('💇','pengering rambut',['pembersih vakum','seterika'],APA),
+C('Kakak menggunakan ___ untuk membersihkan lantai.','pembersih vakum',['mesin basuh','periuk nasi'],'🧹'),
+C('Ibu menggunakan ___ untuk membasuh baju.','mesin basuh',['ketuhar','pengering rambut'],'🧺'),
+C('Abang menggunakan ___ untuk memasak nasi.','periuk nasi',['pembersih vakum','mesin basuh'],'🍚'),
+C('Suzana menggunakan ___ untuk mengeringkan rambut.','pengering rambut',['ketuhar','periuk nasi'],'💇'),
+C('Puan Hana menggunakan ___ untuk membakar ayam.','ketuhar',['mesin basuh','pengering rambut'],'🍗'),
+C('Hafiz menggunakan ___ untuk menelefon rakan.','telefon bimbit',['komputer','ketuhar'],'📱'),
+...PASS('Ini komputer baharu saya. Saya menggunakan komputer untuk pembelajaran dalam talian, membuat latihan dalam talian dan mencari maklumat. Masa untuk berehat. Ibu berpesan supaya tidak menggunakan komputer terlalu lama.',[
+ ['Siapa berpesan supaya tidak menggunakan komputer terlalu lama?','Ibu',['Abang','Cikgu']],
+ ['Kita tidak boleh menggunakan komputer terlalu ...','lama',['baharu','cepat']],
+ ['Selain latihan, komputer digunakan untuk ...','mencari maklumat',['memasak nasi','mengeringkan rambut']]]),
+/* ---- Unit 5 Indahnya Dunia Kita (p20-25) ---- */
+BMV('🏞️','sungai',['bukit','hutan'],'Bentuk muka bumi apakah ini?'),BMV('⛰️','bukit',['sungai','pulau'],'Bentuk muka bumi apakah ini?'),
+BMV('🏝️','pulau',['bukit','hutan'],'Bentuk muka bumi apakah ini?'),BMV('🌲','hutan',['sungai','pulau'],'Bentuk muka bumi apakah ini?'),
+...PASS('Mereka berada di tepi sungai. Di dalam sungai ada banyak ikan.',[['Di dalam sungai ada banyak ...','ikan',['pokok','kapal']]]),
+...PASS('Mereka berada di atas bukit. Bukit ini tinggi.',[['Bukit ini ...','tinggi',['rendah','kecil']]]),
+...PASS('Mereka nampak banyak kapal di laut. Mereka juga nampak pulau.',[['Mereka nampak banyak ... di laut.','kapal',['pokok','ikan']]]),
+...PASS('Mereka berada di dalam hutan. Di dalam hutan ada banyak pokok.',[['Di dalam hutan ada banyak ...','pokok',['kapal','ikan']]]),
+BMV('☀️','matahari',['bulan','bintang'],APA),BMV('🌙','bulan',['matahari','awan'],APA),BMV('⭐','bintang',['bulan','pelangi'],APA),
+BMV('☁️','awan',['pelangi','bintang'],APA),BMV('🌈','pelangi',['awan','matahari'],APA),
+C('Pada waktu siang, saya melihat ...','pelangi, awan dan matahari',['bulan dan bintang','ikan dan kapal'],'☀️'),
+C('Pada waktu malam, saya melihat ...','bulan dan bintang',['pelangi, awan dan matahari','pokok dan sungai'],'🌙'),
+...PASS('Pada hari Isnin, Johan bermain badminton. Pada hari Selasa, Johan pergi ke kelas renang. Pada hari Rabu, Johan pergi ke kelas tae kwan do. Pada hari Khamis, Johan melukis. Pada hari Jumaat, Johan pergi ke perpustakaan. Pada hari Sabtu, Johan pergi berkelah. Pada hari Ahad, Johan bermain piano.',[
+ ['Pada hari Isnin, Johan bermain ...','badminton',['piano','bola']],
+ ['Pada hari Selasa, Johan pergi ke kelas ...','renang',['tae kwan do','lukisan']],
+ ['Pada hari Rabu, Johan pergi ke kelas ...','tae kwan do',['renang','piano']],
+ ['Pada hari Khamis, Johan ...','melukis',['berkelah','bermain piano']],
+ ['Pada hari Jumaat, Johan pergi ke ...','perpustakaan',['kelas renang','pasar']],
+ ['Pada hari Sabtu, Johan pergi ...','berkelah',['melukis','bersekolah']],
+ ['Pada hari Ahad, Johan bermain ...','piano',['badminton','bola']]]),
+C('Hari selepas Isnin ialah hari ...','Selasa',['Rabu','Ahad'],'📅'),C('Hari selepas Rabu ialah hari ...','Khamis',['Selasa','Jumaat'],'📅'),
+C('Hari sebelum Jumaat ialah hari ...','Khamis',['Sabtu','Rabu'],'📅'),C('Hari sebelum Ahad ialah hari ...','Sabtu',['Isnin','Jumaat'],'📅'),
+C('Hari ini hari Jumaat. Esok hari ...','Sabtu',['Khamis','Ahad'],'📅'),C('Hari ini hari Jumaat. Semalam hari ...','Khamis',['Sabtu','Rabu'],'📅'),
+C('Berapa hari dalam seminggu?','tujuh',['lima','sepuluh'],'📅'),
+C('Bulan selepas Januari ialah ...','Februari',['Mac','Disember'],'🗓️'),C('Bulan selepas Mac ialah ...','April',['Februari','Mei'],'🗓️'),
+C('Bulan sebelum Julai ialah ...','Jun',['Ogos','Mei'],'🗓️'),C('Bulan selepas Oktober ialah ...','November',['September','Disember'],'🗓️'),
+C('Bulan yang terakhir dalam setahun ialah ...','Disember',['Januari','November'],'🗓️'),
+C('Berapa bulan dalam setahun?','dua belas',['sepuluh','tujuh'],'🗓️'),
+C('Hari Kemerdekaan pada bulan apa?','Ogos',['Mac','September'],'🇲🇾'),
+C('Hari Malaysia pada bulan apa?','September',['Ogos','Disember'],'🗓️'),
+C('Empat musim ialah musim bunga, musim panas, musim luruh dan musim ...','sejuk',['hujan','kering'],'🍃'),
+C('Sekarang musim sejuk. Apakah yang turun?','salji',['hujan batu','daun'],'❄️'),
+C('Sekarang musim panas. Cuaca ...','cerah',['sejuk','gugur'],'☀️'),
+C('Sekarang musim luruh. Daun-daun pokok akan ...','gugur',['berbunga','cair'],'🍂'),
+C('Sekarang musim bunga. Pokok mula ...','berbunga',['gugur','sejuk'],'🌸'),
+C('Jun Ho tinggal di Korea. Di Korea ada ... musim.','empat',['dua','tiga'],'🏯'),
+/* ---- Unit 6 Negaraku Sayang (p29-32) ---- */
+C('Nama saya Alif. Saya orang ...','Melayu',['Cina','India'],'👦'),
+C('Nama saya Mani. Saya orang ...','India',['Melayu','Cina'],'👦'),
+C('Nama saya Li San. Saya orang ...','Cina',['Melayu','India'],'👧'),
+C('Nama saya Melina. Saya orang ...','Iban',['Kadazan','Cina'],'👧'),
+C('Nama saya Davin. Saya orang ...','Kadazan',['Iban','India'],'👦'),
+C('Kami menyambut hari Kemerdekaan pada 31 ... setiap tahun.','Ogos',['Mac','September'],'🎉'),
+C('Bendera Malaysia juga dikenali sebagai ...','Jalur Gemilang',['Bulan Sabit','Panji Merah'],'🇲🇾'),
+C('Jalur Gemilang ada jalur merah dan ...','putih',['biru','kuning'],'🇲🇾'),
+C('Jalur Gemilang ada bulan sabit dan ...','bintang',['matahari','awan'],'🌙'),
+C('Berapakah jalur merah dan putih pada Jalur Gemilang?','14',['12','13'],'🇲🇾'),
+C('Ibu negara Malaysia ialah ...','Kuala Lumpur',['Pulau Pinang','Johor Bahru'],'🏙️'),
+/* ---- Tatabahasa: Kata Kerja (buku latihan p8-13) ---- */
+C('Kata kerja ialah kata yang menunjukkan ...','perbuatan',['sifat','nama'],'🏃'),
+...[['Jovy sedang makan.','makan',['Jovy','sedang'],'🍽️'],['Buah durian itu gugur.','gugur',['durian','buah'],'🌳'],['Ronnie sedang bersenam.','bersenam',['Ronnie','sedang'],'🤸'],
+ ['David sedang tidur.','tidur',['David','sedang'],'😴'],['Emak sedang menjemur baju.','menjemur',['Emak','baju'],'👕'],['Nelayan itu memancing ikan di laut.','memancing',['nelayan','laut'],'🎣'],
+ ['Robert membaca surat khabar.','membaca',['Robert','surat'],'📰'],['Aina menyapu sampah di halaman rumah.','menyapu',['Aina','sampah'],'🧹'],
+ ['Ahmad memburu rusa di hutan.','memburu',['Ahmad','hutan'],'🦌'],['Raju dan Rama mengecat dinding rumah.','mengecat',['Raju','dinding'],'🎨']].map(([t,a,w,e])=>C('Cari kata kerja:  '+t,a,w,e)),
+C('Pilih kata kerja.','menari',['takut','botol'],'💃'),C('Pilih kata kerja.','membeli',['manis','sekolah'],'🛍️'),
+C('Pilih kata kerja.','melukis',['kantin','matahari'],'🎨'),C('Pilih kata kerja.','mencuci',['jambatan','guru'],'🧼'),
+C('Pilih kata kerja.','berlari',['guru','pensel'],'🏃'),C('Pilih kata kerja.','menyanyi',['komputer','air'],'🎤'),C('Pilih kata kerja.','mandi',['sekolah','botol'],'🛁'),
+/* ---- Kata Adjektif ---- */
+C('Kata adjektif ialah kata yang menerangkan ...','sifat sesuatu',['perbuatan','nama orang'],'🔤'),
+C('Pilih kata adjektif.','panjang',['makan','sekolah']),C('Pilih kata adjektif.','wangi',['berlari','pensel']),C('Pilih kata adjektif.','masam',['menari','botol']),
+C('Pilih kata adjektif.','biru',['menulis','kantin']),C('Pilih kata adjektif.','ringan',['mencuci','guru']),
+...[['Su Lin tersenyum ___.','manis',['lama','dekat'],'😊'],['Nasi lemak itu sangat ___.','sedap',['pendek','cepat'],'🍛'],['Sudah ___ Azmi berdiri di situ.','lama',['manis','sedap'],'🧍'],
+ ['Hari peperiksaan sudah ___.','dekat',['pendek','cepat'],'📝'],['Suzy menyiapkan kerja dengan ___.','cepat',['lama','dekat'],'✍️'],['Gerai itu ___.','kotor',['segar','cantik'],'🧽'],
+ ['Sayur itu ___.','segar',['kotor','hitam'],'🥬'],['Cincin itu sungguh ___.','cantik',['garang','licin'],'💍'],['Seluar itu berwarna ___.','hitam',['cantik','segar'],'🩳'],
+ ['Lantai itu ___.','licin',['kotor','hitam'],'⚠️'],['Anjing itu ___.','garang',['cantik','segar'],'🐕']].map(([t,a,w,e])=>C(t,a,w,e)),
+/* ---- Penjodoh Bilangan ---- */
+C('Penjodoh bilangan "orang" digunakan untuk ...','manusia',['binatang','benda'],'🧑'),
+C('Penjodoh bilangan "ekor" digunakan untuk ...','binatang',['manusia','kereta'],'🐕'),
+...PJ,
+C('Adik melemparkan beberapa ( ekor , biji ) batu ke dalam kolam.','biji',['ekor'],'🪨'),
+C('Cikgu menghadiahi saya se( helai , batang ) pen yang cantik.','batang',['helai'],'🖊️'),
+C('Bapa membelikan abang se( helai , buah ) baju kemeja.','helai',['buah'],'👔'),
+C('Berhampiran rumah Encik Lee terdapat se( batang , orang ) sungai.','batang',['orang'],'🏞️'),
+C('Kakak menelan dua ( buah , biji ) pil.','biji',['buah'],'💊'),
+C('Salmah membeli dua ( helai , buah ) buku cerita.','buah',['helai'],'📖'),
+C('Petani itu kehilangan lima ( ekor , helai ) kambing.','ekor',['helai'],'🐐'),
+C('Mak Minah menjahit se( pasang , buah ) baju kurung.','pasang',['buah'],'👗'),
+/* ---- Kata Tanya ---- */
+C('Apakah digunakan untuk menanyakan ...','nama benda atau binatang',['orang','masa'],'❓'),
+C('Siapakah digunakan untuk menanyakan ...','orang',['benda','binatang'],'❓'),
+C('___ bentuk bola ini?','Apakah',['Siapakah'],'⚽'),C('___ nama kucing kamu?','Apakah',['Siapakah','Bilakah'],'🐱'),
+C('___ hobi kamu semasa masa lapang?','Apakah',['Siapakah','Di manakah'],'🎨'),C('___ guru kelas kamu?','Siapakah',['Apakah','Bilakah'],'👩‍🏫'),
+C('___ yang mengambil buku saya?','Siapakah',['Apakah'],'📖'),C('___ nama datuk kamu?','Siapakah',['Apakah','Mengapakah'],'👴'),
+C('___ yang ada di dalam beg itu?','Apakah',['Siapakah'],'🎒'),C('___ yang cemerlang dalam peperiksaan kali ini?','Siapakah',['Apakah'],'🏅'),
+C('___ budak perempuan ini? Budak perempuan ini adik saya.','Siapakah',['Apakah'],'👧'),C('___ yang dibela oleh Pak Ali di dalam kandang?','Apakah',['Siapakah'],'🐄'),
+C('___ yang membuang sampah ke dalam tong sampah?','Siapakah',['Apakah'],'🗑️'),
+C('___ nama awak?','Siapa',['Apa','Di mana']),C('Awak tinggal ___ ?','di mana',['siapa','apa']),
+/* ---- Huruf besar dan tanda baca ---- */
+C('Huruf besar digunakan pada huruf awal ...','perkataan dalam ayat',['hujung ayat','tengah perkataan'],'🔠'),
+C('Huruf besar juga digunakan pada huruf awal ...','kata nama khas',['kata kerja','kata adjektif'],'🔠'),
+C('Pilih ayat yang betul.','Dr Azmi bekerja di Hospital Alor Setar.',['dr azmi bekerja di hospital alor setar.','Dr azmi bekerja di hospital alor setar.'],'🏥'),
+C('Tanda noktah (.) ditulis di ...','akhir ayat',['awal ayat','tengah ayat'],'✍️'),
+C('Pilih tanda baca.  Kereta itu kepunyaan bapa saya_','.',['?',','],'🚗'),
+C('Pilih tanda baca.  Siapa nama awak_','?',['.',','],'❓'),
+C('Pilih tanda baca.  Ibu beli epal_ oren dan pisang.',',',['.','?'],'🍎'),
+C('Pilih tanda baca.  Awak makan apa_','?',['.',','],'🍽️'),
+/* ---- Susun perkataan ---- */
+O('Susun perkataan.',['Kami','menuju','ke','muzium'],' ','ms-MY'),O('Susun perkataan.',['Saya','hendak','ke','pasar','raya'],' ','ms-MY'),
+O('Susun perkataan.',['Kereta','ada','empat','roda'],' ','ms-MY'),O('Susun perkataan.',['Ibu','menggunakan','mesin','basuh'],' ','ms-MY'),
+O('Susun perkataan.',['Encik','Agus','seorang','petani'],' ','ms-MY'),O('Susun perkataan.',['Tugas','guru','mengajar','murid'],' ','ms-MY'),
+O('Susun perkataan.',['Hari','ini','hari','Jumaat'],' ','ms-MY'),O('Susun perkataan.',['Mereka','berada','di','dalam','hutan'],' ','ms-MY'),
+O('Susun perkataan.',['Kapal','terbang','ada','dua','sayap'],' ','ms-MY')
+];
+
+/* ================= 华文：博儿华文(四) 课本下册 单元三至八 ================= */
+BANK.zh=[
+/* ---- 部首 ---- */
+C('部首是什么？','虫',['木','口'],'',{bigch:'蛙'}),C('部首是什么？','禾',['木','日'],'',{bigch:'种'}),
+C('部首是什么？','王',['木','石'],'',{bigch:'球'}),C('部首是什么？','土',['木','口'],'',{bigch:'地'}),
+C('部首是什么？','扌',['氵','木'],'',{bigch:'护'}),C('部首是什么？','彳',['氵','口'],'',{bigch:'很'}),
+C('部首是什么？','氵',['木','口'],'',{bigch:'滑'}),C('部首是什么？','女',['木','口'],'',{bigch:'妙'}),
+C('部首是什么？','鸟',['虫','木'],'',{bigch:'鹅'}),C('部首是什么？','穴',['木','口'],'',{bigch:'空'}),
+C('部首是什么？','氵',['女','口'],'',{bigch:'河'}),C('部首是什么？','木',['氵','口'],'',{bigch:'树'}),
+C('部首是什么？','艹',['木','口'],'',{bigch:'花'}),C('部首是什么？','口',['木','女'],'',{bigch:'吃'}),C('部首是什么？','饣',['氵','木'],'',{bigch:'饭'}),
+/* ---- 数笔画（课文里要写的字）---- */
+...[['青',8],['蛙',12],['种',9],['子',3],['会',6],['发',5],['我',7],['看',9],['历',4],['石',5],['卵',7],['很',9],['光',6],['地',6],['球',11],['太',4],['空',8],['真',10],['奇',8],['妙',7],['爱',10],['护',7],['虫',6],['大',3],['日',4],['木',4],['水',4],['口',3],['山',3],['花',7],['月',4],['手',4],['雨',8],['天',4]].map(([ch,n])=>C('有几画？',n+'画',[(n-1)+'画',(n+1)+'画'],'',{bigch:ch})),
+/* ---- 量词 ---- */
+C('一＿书','本',['只','条'],'📖'),C('一＿鱼','条',['本','朵'],'🐟'),C('一＿鸟','只',['条','本'],'🐦'),C('一＿花','朵',['只','棵'],'🌸'),
+C('一＿苹果','个',['条','辆'],'🍎'),C('一＿树','棵',['朵','只'],'🌳'),C('一＿车','辆',['棵','块'],'🚗'),C('一＿石头','块',['朵','颗'],'🪨'),
+C('一＿种子','颗',['块','杯'],'🌰'),C('一＿水','杯',['颗','辆'],'🥛'),C('一＿青蛙','只',['条','本'],'🐸'),C('一＿苹果树','棵',['个','只'],'🍎'),C('两＿山','座',['只','本'],'⛰️'),
+/* ---- 标点符号 ---- */
+C('你叫什么名字＿','？',['。','，']),C('今天天气很好＿','。',['？','，']),C('你几岁了＿','？',['。','，']),C('我喜欢苹果＿香蕉和西瓜。','，',['。','？']),
+C('地球是我们的家＿','。',['？','，'],'🌍'),C('太阳发出什么＿','？',['。','，'],'☀️'),
+/* ---- 疑问代词 ---- */
+C('＿是你的老师？','谁',['什么','哪里']),C('你在做＿？','什么',['谁','哪里']),C('你住在＿？','哪里',['谁','什么']),
+C('今天是星期＿？','几',['谁','哪里']),C('这是＿的书？','谁',['哪里','什么']),
+/* ---- 单元三 种子和植物 ---- */
+C('青蛙有几条腿？','四条',['两条','六条'],'🐸'),C('青蛙有几只眼睛？','两只',['一只','四只'],'🐸'),C('青蛙有几张嘴？','一张',['两张','四张'],'🐸'),
+C('青蛙一跳一跳捉什么？','害虫',['鱼','青草'],'🐸'),C('青蛙扑通扑通跳下哪里？','水',['树','山'],'💦'),
+C('哪一种树会结苹果？','苹果树',['芒果树','木瓜树'],'🍎'),C('哪一种树会结芒果？','芒果树',['苹果树','红毛丹树'],'🥭'),
+C('哪一种树会结木瓜？','木瓜树',['苹果树','芒果树'],'🌴'),C('哪一种树会结红毛丹？','红毛丹树',['木瓜树','芒果树'],'🌳'),
+C('有的植物会结＿。','果',['鱼','石'],'🍎'),
+C('把种子种在哪里？','地下',['天上','水里'],'🌱'),C('有水，有阳光，不久，种子会＿。','发芽',['不见','变石头'],'🌱'),
+C('种子发芽后，会长成一棵什么？','植物',['石头','汽车'],'🌿'),C('成长的果树，会开花结＿。','果',['冰','雨'],'🌸'),
+C('阳光阳光，晒吧；小雨小雨，下吧；风儿风儿，吹吧；小芽小芽，出＿啦！','土',['水','天'],'🌱'),
+/* ---- 单元四 食物 ---- */
+C('我们一天最少要吃几餐？','三餐',['两餐','五餐'],'🍽️'),C('上午吃什么餐？','早餐',['午餐','晚餐'],'🥞'),
+C('中午吃什么餐？','午餐',['早餐','晚餐'],'🍚'),C('傍晚吃什么餐？','晚餐',['早餐','午餐'],'🍲'),
+C('一天中的第一餐是？','早餐',['午餐','晚餐'],'🥞'),C('一天中的第二餐是？','午餐',['早餐','晚餐'],'🍚'),C('一天中的第三餐是？','晚餐',['早餐','午餐'],'🍲'),
+C('他吃了早餐才去＿。','上学',['睡觉','游泳'],'🎒'),C('放学后，他在家吃什么？','午餐',['早餐','晚餐'],'🏠'),
+C('吃午餐前，她爱吃什么？','零食',['青菜','鱼'],'🍬'),C('饭前吃零食是好习惯吗？','不是',['是'],'🍬'),
+C('她吃了很多零食，所以午餐和晚餐都＿。','吃不下',['吃很多','爱吃'],'😣'),
+/* ---- 单元五 各种各样的石头 ---- */
+C('很多山连在一起叫什么？','山峦',['山谷','火山'],'⛰️'),C('两座山中间的长形平地叫什么？','山谷',['山峦','悬崖'],'🏞️'),
+C('什么山有口，会喷发很热的岩浆？','火山',['山谷','山峦'],'🌋'),C('鹅卵石很光滑，形状像什么？','蛋',['球','车'],'🥚'),
+C('哪一种石头很光滑，形状像蛋？','鹅卵石',['钟乳石','礁石'],'🪨'),C('山和岩石的形状是怎么形成的？','自然形成的',['人做的','买来的'],'⛰️'),
+C('哪一个是石头的名称？','钟乳石',['苹果','种子'],'🪨'),C('哪一个是石头的名称？','礁石',['青蛙','芒果'],'🪨'),
+/* ---- 单元六 一个星期有七天，一年有十二个月 ---- */
+C('一个星期有几天？','七天',['五天','十天'],'📅'),C('一年有几个月？','十二个月',['十个月','七个月'],'🗓️'),
+C('一年有几天？','365天',['300天','400天'],'🗓️'),C('一年有几个星期？','52个',['12个','30个'],'🗓️'),
+C('二月有几天？','28天或29天',['30天','31天'],'🗓️'),C('除了二月，其它月份有几天？','30天或31天',['28天','20天'],'🗓️'),
+C('一月是大月还是小月？','大月',['小月'],'🗓️'),C('二月是大月还是小月？','小月',['大月'],'🗓️'),C('四月是大月还是小月？','小月',['大月'],'🗓️'),
+C('八月是大月还是小月？','大月',['小月'],'🗓️'),C('九月是大月还是小月？','小月',['大月'],'🗓️'),C('十二月是大月还是小月？','大月',['小月'],'🗓️'),
+C('星期一的后面是星期几？','星期二',['星期三','星期日']),C('星期五的后面是星期几？','星期六',['星期四','星期日']),
+C('星期六的后面是星期几？','星期日',['星期五','星期一']),C('星期三的前面是星期几？','星期二',['星期四','星期一']),
+C('日历上除了有月、日外，还有什么？','星期',['年龄','地图'],'🗓️'),
+C('五月一日（劳动节）是星期几？（看日历）','星期日',['星期三'],'🗓️'),C('五月十一日是星期几？（看日历）','星期三',['星期五'],'🗓️'),
+C('五月五日是星期几？（看日历）','星期四',['星期日'],'🗓️'),C('五月三十一日是星期几？（看日历）','星期二',['星期三'],'🗓️'),
+/* ---- 单元七 环保 ---- */
+C('我们住在哪里？','地球上',['月球上','太阳上'],'🌍'),C('地球是我们的什么？','家',['玩具','书'],'🏠'),
+C('人们乱丢垃圾，把什么弄脏了？','土地',['天空','月亮'],'🗑️'),C('汽车排出废气，天气越来越＿。','热',['冷','黑'],'🚗'),
+C('垃圾漂在水上，把什么弄脏了？','水',['风','云'],'🌊'),C('大量砍伐树木，时常发生什么？','土崩',['下雪','火山'],'🪓'),
+C('炎热的天气，使冰山融化，造成什么？','水灾',['火灾','地震'],'🧊'),C('海水被弄脏了，许多鱼都＿。','死了',['笑了','飞了'],'🐟'),
+C('我们要怎样对待地球？','爱护它',['弄脏它','不管它'],'🌍'),C('别让地球＿。','生病',['发芽','结果'],'🌍'),
+/* ---- 单元八 太空 ---- */
+C('这是什么？','太阳',['月球','地球'],'☀️'),C('这是什么？','地球',['月球','火星'],'🌍'),C('这是什么？','月球',['太阳','地球'],'🌙'),
+C('这是哪一颗行星？（有一圈环）','土星',['木星','火星'],'🪐'),C('哪一个不是行星？','太阳',['火星','木星'],'☀️'),
+C('哪一颗行星是我们的家？','地球',['火星','水星'],'🌍'),C('太阳发出什么？','光和热',['水和风','雨和雪'],'☀️'),
+C('太阳离地球很远还是很近？','很远',['很近'],'☀️'),C('太阳的光能使什么生长？','植物',['石头','汽车'],'🌳'),
+C('地球上有空气和什么，适合人类和动物居住？','水',['石头','冰'],'🌍'),C('月球上有水吗？','没有',['有'],'🌙'),
+C('月球适合人类和动物居住吗？','不适合',['适合'],'🌙'),C('太空船飞上哪里？','太空',['海里','山上'],'🚀'),
+C('在太空里，有太阳，地球，月球和许多＿。','星球',['汽车','房子'],'🌌'),
+/* ---- 词句重组 ---- */
+O('把词语排成句子。',['我','喜欢','吃','苹果'],'','zh-CN'),O('把词语排成句子。',['青蛙','捉','害虫'],'','zh-CN'),
+O('把词语排成句子。',['种子','会','发芽'],'','zh-CN'),O('把词语排成句子。',['我们','一天','要吃','三餐'],'','zh-CN'),
+O('把词语排成句子。',['鹅卵石','很','光滑'],'','zh-CN'),O('把词语排成句子。',['一个星期','有','七天'],'','zh-CN'),
+O('把词语排成句子。',['一年','有','十二个月'],'','zh-CN'),O('把词语排成句子。',['我们','住在','地球上'],'','zh-CN'),
+O('把词语排成句子。',['我要','爱护','地球'],'','zh-CN'),O('把词语排成句子。',['太空船','飞上','太空','了'],'','zh-CN'),
+/* ---- 阅读短文 ---- */
+C('青蛙有几条腿？','四条',['两条','六条'],'',{passage:'一只青蛙四条腿，两只眼睛一张嘴。一跳一跳捉害虫，扑通扑通跳下水。'}),
+C('青蛙捉什么？','害虫',['小鱼','青草'],'',{passage:'一只青蛙四条腿，两只眼睛一张嘴。一跳一跳捉害虫，扑通扑通跳下水。'}),
+C('早餐是一天中的第几餐？','第一餐',['第二餐','第三餐'],'',{passage:'早餐是一天中的第一餐。他吃了早餐才去上学。午餐是一天中的第二餐。放学后，他在家吃午餐。晚餐是一天中的第三餐。傍晚时，他在家吃晚餐。'}),
+C('他什么时候吃午餐？','放学后',['傍晚','上学前'],'',{passage:'早餐是一天中的第一餐。他吃了早餐才去上学。午餐是一天中的第二餐。放学后，他在家吃午餐。晚餐是一天中的第三餐。傍晚时，他在家吃晚餐。'}),
+C('汽车排出废气，天气会怎样？','越来越热',['越来越冷','下雪'],'',{passage:'地球生病了，因为……人们乱丢垃圾，把土地弄脏了。汽车排出废气，天气越来越热。垃圾漂在水上，把水弄脏了。'}),
+C('垃圾漂在水上，会怎样？','把水弄脏了',['把水变甜','把水变冰'],'',{passage:'地球生病了，因为……人们乱丢垃圾，把土地弄脏了。汽车排出废气，天气越来越热。垃圾漂在水上，把水弄脏了。'}),
+C('太阳的光能使什么生长？','植物',['石头','月亮'],'',{passage:'太阳发出光和热，它离地球很远。太阳的光能使植物生长。地球上有空气和水，适合人类和动物居住。月球上没有水，不适合人类和动物居住。'}),
+C('哪里不适合人类居住？','月球',['地球','树林'],'',{passage:'太阳发出光和热，它离地球很远。太阳的光能使植物生长。地球上有空气和水，适合人类和动物居住。月球上没有水，不适合人类和动物居住。'})
+];
+
+/* ===== English bank rebuilt from the textbook photos (My Pals Are Here! 1A Unit 5-8 + Grammar Workbook), 2026-11-12 ===== */
+(()=>{
+const X=[];
+const Q=(t,a,w,e,x)=>X.push(C(t,a,w,e||'',x));
+const Pp=(p,l)=>l.forEach(([t,a,w])=>X.push(C(t,a,w,'',{passage:p})));
+const WORD=(e,a,w,t)=>X.push(C(t||'Which word?',a,w,e));
+/* ---------- Unit 5 Where I Live ---------- */
+WORD('🏫','school',['library','shops'],'Which place?');WORD('🏪','shops',['school','house'],'Which place?');
+WORD('📚','library',['school','market'],'Which place?');WORD('🏠','house',['flat','shophouse'],'Which home?');
+WORD('🏢','flat',['house','terrace house'],'Which home?');WORD('🏘️','terrace house',['flat','house'],'Which home?');
+WORD('🛒','supermarket',['cinema','market'],'Which place?');WORD('🎬','cinema',['supermarket','library'],'Which place?');
+WORD('📮','post office',['police post','coffee shop'],'Which place?');WORD('🚓','police post',['post office','library'],'Which place?');
+WORD('☕','coffee shop',['market','school'],'Which place?');WORD('🍜','food centre',['library','cinema'],'Which place?');
+WORD('🛝','playground',['library','post office'],'Which place?');
+Pp('Hamid lives in a house. His friends like his house because it has a big garden. Hamid has friends in the neighbourhood. His friend Alice lives in a flat.',[
+ ['Where does Hamid live?','in a house',['in a flat','in a shophouse']],['Where does Alice live?','in a flat',['in a house','in a terrace house']],['Why do his friends like his house?','It has a big garden.',['It is a flat.','It has a library.']]]);
+Pp('Nick lives in a shophouse. He lives above a bookshop. Raju and Deepa live in a terrace house. They have friendly neighbours.',[
+ ['Where does Nick live?','in a shophouse',['in a flat','in a terrace house']],['Who lives in a terrace house?','Raju and Deepa',['Nick','Alice']],['Nick lives above a ...','bookshop',['library','supermarket']]]);
+Q('Hamid says: "This is ___ house."','my',['her','their'],'🏠');Q('Alice\'s flat. "This is ___ flat."','her',['his','my'],'🏢');
+Q('Nick\'s shophouse. "This is ___ shophouse."','his',['her','their'],'🏪');Q('Raju and Deepa\'s home. "This is ___ terrace house."','their',['his','my'],'🏘️');
+Q('The words my, her, his and their show who or what a naming word ...','belongs to',['runs from','looks like'],'💡');
+Q('The words dirty, clean, full and empty are ...','adjectives',['prepositions','verbs'],'🔤');
+Q('The words hard, soft, high and low are adjectives too. Which one is an adjective?','soft',['read','library'],'📖');
+WORD('🧼','clean',['dirty','empty'],'Which word?');WORD('🧹','dirty',['clean','full'],'Which word?');
+WORD('🥛','full',['empty','low'],'Which word?');WORD('🫙','empty',['full','soft'],'Which word?');
+WORD('🪨','hard',['soft','low'],'Which word?');WORD('🛋️','soft',['hard','high'],'Which word?');
+WORD('🔝','high',['low','soft'],'Which word?');WORD('⬇️','low',['high','hard'],'Which word?');
+Q('Which is the opposite of "clean"?','dirty',['full','soft']);Q('Which is the opposite of "full"?','empty',['clean','high']);
+Q('Which is the opposite of "hard"?','soft',['high','low']);Q('Which is the opposite of "high"?','low',['soft','hard']);
+Q('"I ___ supermarkets." (you do not like them)','do not like',['like','likes'],'🛒');Q('"We ___ lollipops." (you like them)','like',['do not like','likes'],'🍭');
+Q('Deepa ___ cartoons.','likes',['like','do not like'],'🎬');Q('She ___ cowboy films. (she does not)','does not like',['do not like','likes'],'🤠');
+Q('"I like policemen too. They keep our neighbourhood ___."','safe',['dirty','empty'],'👮');
+Q('Liming lives in a house. We write his address on a ...','letter',['parcel','poster'],'✉️');
+Q('Alice has a ... to collect.','parcel',['letter','book'],'📦');
+Q('We write the names of people and places with a ... letter.','capital',['small','missing'],'🔠');
+Q('Deepa climbs ___ the climbing frame.','up',['down','over'],'🧗');Q('Hamid slides ___ the slide.','down',['up','into'],'🛝');
+Q('Alice skips ___ her friends.','between',['over','into'],'🏃‍♀️');Q('Raju goes ___ the tunnel.','into',['out of','over'],'🚇');
+Q('Nick comes ___ of the tunnel.','out',['into','up'],'🚇');Q('The frog jumps ___ a log.','over',['under','into'],'🐸');
+Q('The words up, down, between, into, out and over are ...','prepositions',['adjectives','nouns'],'📍');
+Pp('One night we went to Grandfather\'s house. We saw a tortoise sleeping behind the door. We saw two parrots sleeping beside the window. We saw three monkeys sleeping on the sofa. We saw four hamsters sleeping under the bed. We saw five cats sleeping on the bed.',[
+ ['The tortoise was sleeping ...','behind the door',['on the sofa','under the bed']],['The two parrots were sleeping ...','beside the window',['behind the door','on the bed']],
+ ['The monkeys were sleeping ...','on the sofa',['under the bed','beside the window']],['The hamsters were sleeping ...','under the bed',['on the bed','on the sofa']],
+ ['How many cats were sleeping on the bed?','five',['four','three']],['How many monkeys were on the sofa?','three',['two','five']],['Where does Grandfather sleep?','under the coconut trees',['on the sofa','behind the door']]]);
+/* ---------- Unit 6 Jobs People Do ---------- */
+[['🥖','baker'],['💐','florist'],['👩‍🏫','teacher'],['📮','postman'],['👨‍🍳','chef'],['🌭','food vendor'],['🧹','sweeper'],['🧑‍🚒','firefighter'],['👮‍♀️','policewoman'],['👩‍⚕️','doctor'],['🦷','dentist'],['👩‍⚕️','nurse'],['👮','policeman'],['🔧','electrician'],['🪖','soldier'],['📚','librarian'],['🌱','gardener'],['🔬','scientist'],['💇','hairdresser'],['🚌','driver']]
+ .forEach(([e,a],i,all)=>WORD(e,a,all.filter(x=>x[1]!==a).sort(()=>Math.random()-.5).slice(0,2).map(x=>x[1]),'What is the job?'));
+Q('The florist has a long box. "What\'s in it?" The baker has a ... box.','round',['long','big'],'🥖');
+Q('The postman has a big ...','bag',['box','book'],'📮');Q('The teacher has a ...','bag',['box','cake'],'👩‍🏫');
+Q('Dr Lee is a ...','doctor',['nurse','dentist'],'🩺');Q('Miss Tan is a ...','nurse',['doctor','chef'],'👩‍⚕️');
+Q('Mr Ali is a ...','policeman',['soldier','electrician'],'👮');Q('Dr Bala is a ...','dentist',['doctor','nurse'],'🦷');
+Q('Mrs Gopal is a ...','chef',['nurse','teacher'],'👩‍🍳');Q('Mr Chen is an ...','electrician',['policeman','dentist'],'🔧');
+Q('The words Dr, Miss, Mr and Mrs are ...','titles',['jobs','places'],'🏷️');
+Q('We use ___ letters for people\'s names and titles.','capital',['small','red'],'🔠');
+Q('"I ___ a hairdresser."','am',['is','are'],'💇');Q('"He ___ a driver."','is',['am','are'],'🚌');
+Q('"We ___ soldiers."','are',['is','am'],'🪖');Q('"She ___ a librarian."','is',['are','am'],'📚');
+Q('"They ___ gardeners."','are',['is','am'],'🌱');Q('"You ___ a soldier too."','are',['is','am'],'🪖');Q('"He ___ a scientist."','is',['are','am'],'🔬');
+Q('"I cook chicken, duck and fish. Who am I?"','chef',['baker','doctor'],'🍳');
+Q('"I help you see when it is night. I help to make your houses bright. Who am I?"','electrician',['librarian','chef'],'💡');
+Q('"I can tell you where to look, if you want to find a book. Who am I?"','librarian',['gardener','baker'],'📚');
+Q('"I plant flowers just for you. Who am I?"','gardener',['librarian','driver'],'🌷');
+Q('"Climb up the steps. Get on my bus. Who am I?"','bus driver',['dentist','baker'],'🚌');
+Q('"I love to roll and pat and bake. I give you bread. I give you cake. Who am I?"','baker',['chef','dentist'],'🥖');
+Q('"I will help you pull it out, if you promise not to shout. Who am I?"','dentist',['doctor','nurse'],'🦷');
+Q('"Does he wear a uniform?" "Yes, he ___."','does',['is','do'],'👮');Q('"Is he a policeman?" "No, he ___ not."','is',['does','are'],'🙅');
+Q('"Is he a postman?" "Yes, he ___."','is',['does','am'],'📮');Q('"Can you give me a clue?" "He brings you ___."','letters',['flowers','cakes'],'✉️');
+Q('A question ends with a ...','?',['.',','],'❓');Q('"Is this a fruit cake" – which punctuation ends it?','?',['.','!']);
+Q(', is a ...','comma',['full stop','question mark'],'✍️');Q('We use commas to separate parts of a sentence. Where does the comma go? "Happy Birthday_ Supermum!"','after Birthday',['after Supermum','before Happy'],'🎂');
+Pp('"Your hair\'s too long," Mum said to Ben. "It\'s time for a haircut." They went to a hairdresser\'s. The hairdresser made a boy\'s hair orange. She made a girl\'s hair green. She made a woman\'s hair frizzy. She cut a man\'s hair very short.',[
+ ['Who said "Your hair is too long"?','Mum',['Ben','the hairdresser']],['Where did they go?','to a hairdresser\'s',['to a library','to a farm']],['The hairdresser made a boy\'s hair ...','orange',['green','frizzy']],['She made a girl\'s hair ...','green',['orange','short']],['She cut a man\'s hair very ...','short',['long','green']]]);
+/* ---------- Beginning Sounds (letters in the books) ---------- */
+[['w','walrus','🦭'],['y','yo-yo','🪀'],['s','sofa','🛋️'],['z','zebra','🦓'],['q','quilt','🛏️'],['v','violin','🎻'],['x','xylophone','🎼'],['c','comb','💇'],['g','goat','🐐']]
+ .forEach(([l,w,e])=>X.push(C('"'+w+'" begins with the letter ...',l,['b','m','t','p','r','k','d'].filter(x=>x!==l).slice(0,2),e)));
+/* ---------- Unit 7 On the Farm ---------- */
+[['🐓','hen'],['🐄','cow'],['🐮','calf'],['🐥','chick'],['🐑','lamb'],['🐏','sheep'],['🦆','duck'],['🐤','duckling'],['🐈','cat'],['🐱','kitten'],['🐂','ox'],['🐴','horse'],['🐐','goat'],['🪿','goose'],['🐭','mouse']]
+ .forEach(([e,a],i,all)=>WORD(e,a,all.filter(x=>x[1]!==a).sort(()=>Math.random()-.5).slice(0,2).map(x=>x[1]),'Which farm animal?'));
+Q('A baby cow is a ...','calf',['lamb','kitten'],'🐮');Q('A baby sheep is a ...','lamb',['calf','chick'],'🐑');Q('A baby hen is a ...','chick',['duckling','kitten'],'🐥');
+Q('A baby duck is a ...','duckling',['chick','calf'],'🐤');Q('A baby cat is a ...','kitten',['lamb','calf'],'🐱');
+Q('One chick, two ...','chicks',['chickes','chickens'],'🐥');Q('One lamb, two ...','lambs',['lambes','lambies'],'🐑');
+Q('One calf, two ...','calves',['calfs','calfes'],'🐮');Q('One goose, two ...','geese',['gooses','goose'],'🪿');Q('One mouse, two ...','mice',['mouses','mices'],'🐭');
+Q('We often add ___ to naming words to mean more than one.','s',['ing','ed'],'➕');
+Q('For some naming words, the spelling ___ when they mean more than one.','changes',['stays','shrinks'],'🔤');
+Q('The hen gives us ...','eggs',['milk','wool'],'🥚');Q('The cow gives us ...','milk',['eggs','wool'],'🥛');Q('The sheep gives us ...','wool',['milk','rides'],'🧶');
+Q('The horse gives us ...','rides',['eggs','wool'],'🐴');Q('The ox works in the ...','fields',['pond','house'],'🐂');
+Q('The duck ___ in the pond.','swims',['gallops','climbs'],'🦆');Q('The hen ___ for worms.','looks',['gallops','swims'],'🐓');
+Q('The cow ___ grass.','chews',['climbs','swims'],'🐄');Q('The horse ___ in the fields.','gallops',['swims','chews'],'🐴');
+Q('The sheep ___ grass on the hill.','eats',['gallops','swims'],'🐑');Q('The goat ___ the rocks.','climbs',['swims','eats'],'🐐');
+Q('The hen ___.','clucks',['moos','quacks'],'🐓');Q('The cow ___.','moos',['clucks','bleats'],'🐄');Q('The duck ___.','quacks',['moos','meows'],'🦆');
+Q('The lamb ___.','bleats',['crows','quacks'],'🐑');Q('The cock ___.','crows',['bleats','meows'],'🐓');Q('The cat ___.','meows',['quacks','clucks'],'🐈');
+Q('"It clucks. It looks for worms. It gives us eggs. What is it?"','hen',['duck','cow'],'❓');
+Q('"It has feathers. It quacks. It swims in the pond. What is it?"','duck',['hen','cat'],'❓');
+Q('"It has a long tail. It eats grass. It moos. What is it?"','cow',['horse','sheep'],'❓');
+Q('"It has four legs. It gallops. It is big. What is it?"','horse',['cat','hen'],'❓');
+Q('"It meows. It chases mice. It has kittens. What is it?"','cat',['hen','cow'],'❓');
+Q('"Its mother is the cow. It is a baby. It drinks her milk. What is it?"','calf',['lamb','kitten'],'❓');
+Pp('It is market day. Farmer Brown sells two hens, three ducks, a goose and a sheep. Farmer Green sells three geese, four hens, a cow and two goats. Farmer Black sells four chicks, five ducklings, three calves and a lamb. Farmer White sells a kitten, two cows, a horse, three goats and some eggs.',[
+ ['What does Farmer Brown sell? Two hens, three ducks, a goose and a ...','sheep',['cow','horse']],['How many geese does Farmer Green sell?','three',['four','two']],['How many ducklings does Farmer Black sell?','five',['four','three']],
+ ['Farmer White sells a kitten, two cows, a horse, three goats and some ...','eggs',['hens','lambs']],['Who sells a lamb?','Farmer Black',['Farmer Green','Farmer White']]]);
+Q('We use ___ to separate words in a list.','commas',['question marks','capital letters'],'✍️');
+Q('Farmer Brown sells two hens_ three ducks_ a goose and a sheep. Which mark goes in the blanks?',',',['?','!']);
+Pp('When Alex went to the farm, he chased the chickens. "Cluck! Cluck! Cluck!" they went. He chased the ducks. "Quack! Quack!" they went. He chased the cows. "Moo! Moo! Moo!" they went. He chased the horse. "Neigh!" it went.',[
+ ['What did Alex chase first?','the chickens',['the cows','the horse']],['The ducks went ...','"Quack! Quack!"',['"Moo! Moo!"','"Cluck! Cluck!"']],['The cows went ...','"Moo! Moo! Moo!"',['"Quack!"','"Neigh!"']],['The horse went ...','"Neigh!"',['"Moo!"','"Cluck!"']]]);
+/* ---------- Unit 8 What is in the Garden? ---------- */
+[['🕸️','web'],['🕷️','spider'],['🪹','nest'],['🌸','flower'],['🐝','bee'],['🦋','butterfly'],['🐜','ant'],['🍃','leaf'],['🌳','tree'],['🌱','grass'],['🏞️','pond'],['🐌','snail'],['🪴','plant'],['🪱','earthworm'],['🐞','ladybird']]
+ .forEach(([e,a],i,all)=>WORD(e,a,all.filter(x=>x[1]!==a).sort(()=>Math.random()-.5).slice(0,2).map(x=>x[1]),'What is in the garden?'));
+Q('A spider lives in a ...','web',['nest','pond'],'🕷️');Q('A bird lives in a ...','nest',['web','pond'],'🐦');
+Pp('Chirpy has a baby bird. Its name is Cheepy. Chirpy the bird lives in the garden too.',[['What is the baby bird\'s name?','Cheepy',['Chirpy','Cheeky']],['Where does Chirpy live?','in the garden',['in a house','on a farm']]]);
+Q('"___ is a snail." (the snail is near you)','This',['That','These'],'🐌');Q('"___ is a bee." (the bee is far away)','That',['This','Those'],'🐝');
+Q('"___ is a flower." (near)','This',['That','Those'],'🌸');Q('"___ is a spider." (far)','That',['This','These'],'🕷️');
+Q('"___ are ants." (near, many)','These',['Those','This'],'🐜');Q('"___ are ladybirds." (far, many)','Those',['These','That'],'🐞');
+Q('"___ are worms." (near, many)','These',['Those','That'],'🪱');Q('"___ are butterflies." (far, many)','Those',['These','This'],'🦋');
+Q('We use this and these for things ...','near us',['far from us','under us'],'👆');Q('We use that and those for things ...','not near us',['near us','inside us'],'👉');
+Q('Which word is for ONE thing near you?','this',['these','those']);Q('Which word is for MANY things far from you?','those',['this','these']);
+Q('Instructions: "1. ___ some holes in the soil."','Dig',['Water','Cover'],'⛏️');Q('"2. ___ the seeds into the holes."','Pour',['Dig','Water'],'🌰');
+Q('"3. ___ the seeds with soil."','Cover',['Pour','Dig'],'🟤');Q('"4. ___ the seeds every day."','Water',['Cover','Pour'],'💧');
+Q('"Do you have a spade?" "Yes, I ___."','do',['don\'t','am'],'⛏️');Q('"Do you have the seeds?" "No, I ___."','don\'t',['do','am'],'🌰');
+Q('"Yes, I do." means you ...','have it',['do not have it','lost it'],'✅');Q('"No, I don\'t." means you ...','do not have it',['have it','found it'],'❌');
+/* ---------- Grammar workbook: adjectives ---------- */
+Q('An adjective gives more details about a ...','noun',['verb','number'],'🔤');Q('"The green monster": which word is the adjective?','green',['monster','the']);
+[['dry','wet','☔'],['big','little','🐘'],['hot','cold','☀️'],['fat','skinny','🧑'],['clean','dirty','🧒'],['sharp','blunt','🔪'],['hard','soft','🛏️'],['fresh','smelly','🗑️'],['sweet','sour','🍯']].forEach(([a,b,e])=>{
+  X.push(C('Which adjective matches the picture?',a,[b],e));});
+Q('Which word is a COLOUR adjective?','purple',['tiny','windy']);Q('Which word is a SIZE adjective?','huge',['sweet','foggy']);
+Q('Which word is a TASTE adjective?','bitter',['circle','quiet']);Q('Which word is a WEATHER adjective?','rainy',['sharp','three']);
+Q('Which word is a SHAPE adjective?','square',['loud','sour']);Q('Which word is a SOUND adjective?','loud',['oval','windy']);
+Q('Which word is a TEXTURE adjective?','smooth',['fresh','star']);Q('Which word is a NUMBER adjective?','seven',['musty','tall']);
+Q('Which word is a SMELL adjective?','stinky',['tall','round']);
+/* ---------- Possessive adjectives ---------- */
+Q('Possessive adjectives show to whom things ...','belong',['run','sleep'],'🔤');
+Q('This is Raju\'s pen. This is ___ pen.','his',['her','their'],'✏️');Q('This is Sam. This is ___ puppy.','his',['her','my'],'🐶');
+Q('This is Mary. This is ___ pen.','her',['his','their'],'✏️');Q('This is Albert and Alice\'s house. This is ___ house.','their',['his','her'],'🏠');
+Q('This is Ben\'s school. This is ___ school.','his',['her','their'],'🏫');Q('These are the children\'s toys. These are ___ toys.','their',['his','her'],'🧸');
+Q('This is Daisy\'s cousin. This is ___ cousin.','her',['his','their'],'👧');
+Q('This is me. This is ___ bag.','my',['your','his'],'🎒');Q('This is you. This is ___ watch.','your',['my','her'],'⌚');
+Q('This is a kitten. This is ___ food.','its',['his','your'],'🐱');Q('"I\'ve got a cat. It\'s ___ cat."','my',['her','your'],'🐈');
+Q('"She has got a car. It\'s ___ car."','her',['his','their'],'🚗');Q('"He has got a dog. It\'s ___ dog."','his',['her','our'],'🐕');
+Q('"They have got a book. It\'s ___ book."','their',['his','your'],'📖');Q('"You have got a pencil. It\'s ___ pencil."','your',['my','their'],'✏️');
+Q('"We have two dogs. These are ___ dogs."','our',['their','his'],'🐶');
+/* ---------- Prepositions of place ---------- */
+Q('A preposition is a word that relates a noun or pronoun to another ...','word',['letter','number'],'🔤');
+[['on','sits on top of'],['in','is inside'],['under','is below'],['behind','is at the back of'],['above','is higher than, not touching'],['near','is close to'],['beside','is at the side of'],['between','is in the middle of two'],['in front of','is at the front of']]
+ .forEach(([a,m])=>Q('The cat '+m+' the ball. The cat is ___ the ball'+(a==='between'?'s.':'.'),a,['on','in','under','behind','above','near','beside','between','in front of'].filter(x=>x!==a).sort(()=>Math.random()-.5).slice(0,2),'🐱🧶'));
+Q('The frog jumps ___ the box. (from the box to the floor)','off',['on to','over'],'🐸');Q('The frog jumps ___ the box. (up onto it)','on to',['off','over'],'🐸');
+Q('The frog jumps ___ the box. (above it, to the other side)','over',['off','under'],'🐸');Q('The snake goes ___ the wall.','under',['over','across'],'🐍');
+Q('The snake goes ___ the pipe.','through',['across','under'],'🐍');Q('The snake goes ___ the bridge.','across',['through','under'],'🐍');
+Q('The boy walks ___ the stairs.','up',['down','under'],'🧗');Q('The girl walks ___ the stairs.','down',['up','over'],'🚶‍♀️');
+Q('The book is ___ the box. (on top)','on',['in','under'],'📦');Q('The ball is ___ the table. (below it)','under',['above','on'],'🏐');
+Q('The girl is ___ the car.','in',['on','under'],'🚗');Q('The bag is ___ the chair. (on top)','on',['under','in'],'🪑');
+Q('The clock is ___ the wall.','on',['in','under'],'🕐');Q('Walk ___ to the door.','up',['out','in'],'🚪');
+Q('Tom is ___ his room.','in',['on','under'],'🏠');Q('Tom is sitting ___ the chair.','on',['under','between'],'🪑');
+Q('Tom is ___ the bed.','under',['on','above'],'🛏️');Q('Tom is ___ Raju and Tina. (in the middle)','between',['behind','above'],'🧍');
+Q('Tom is standing ___ his father.','near',['under','in'],'👨‍👦');Q('The kite is ___ Tom. (high up over him)','above',['under','in'],'🪁');
+Q('Tom is leaning ___ the bookshelf.','against',['under','between'],'📚');Q('The dog is ___ of Tom. (right before him)','in front',['under','above'],'🐕');
+/* ---------- Conjunctions ---------- */
+Q('A conjunction links words, sentences and clauses ...','together',['apart','away'],'🔗');
+Q('FANBOYS: for, and, nor, but, or, yet, ...','so',['to','in'],'🔗');
+Q('Simon is going fishing. I am going fishing. = Simon ___ I are going fishing.','and',['but','or'],'🎣');
+Q('The room is clean ___ tidy.','and',['but','or'],'🧹');
+Q('The dog chased a rabbit ___ he did not catch it.','but',['and','or'],'🐕');Q('Tim fell off his scooter ___ he did not hurt himself.','but',['and','or'],'🛴');
+Q('They hurried to the station ___ the train had gone.','but',['and','or'],'🚂');Q('Jane felt ill ___ she did not want to stay in bed.','but',['and','or'],'🤒');
+Q('Do you want tea ___ coffee?','or',['and','but'],'☕');Q('Do you like syrup ___ lemonade?','or',['and','but'],'🥤');
+Q('Is this a handbag ___ a schoolbag?','or',['and','but'],'👜');Q('Do you like cats ___ dogs?','or',['and','but'],'🐱');
+Q('I have a brother ___ a sister.','and',['but','or'],'👫');Q('I would like to have the blue toy ___ the red toy.','or',['and','but'],'🧸');
+Q('Do you want an apple ___ a pear?','or',['and','but'],'🍎');Q('Kim likes this red top ___ that pink skirt.','and',['but','or'],'👚');
+Q('Is this a moth ___ a butterfly?','or',['and','but'],'🦋');Q('I like the bag ___ it is too expensive.','but',['and','or'],'👜');
+Q('Do you want to go to the zoo ___ the birdpark?','or',['and','but'],'🦓');Q('I love dancing. I love singing. = I love dancing ___ singing.','and',['but','or'],'💃');
+Q('My puppy is brown. His puppy is black. = My puppy is brown ___ his puppy is black.','but',['and','or'],'🐶');
+Q('Ted can lift the box. Tom cannot lift the box. = Ted can lift the box ___ Tom cannot.','but',['and','or'],'📦');
+Q('Colin is tall. Colin is handsome. = Colin is tall ___ handsome.','and',['but','or'],'🧍');
+/* ---------- Interrogative pronouns ---------- */
+Q('"Who" is used to ask about a ...','person',['place','time'],'🧑');Q('"What" is used to ask about a ...','thing or an action',['person','place'],'🧁');
+Q('"When" is used to ask about a ...','time',['place','person'],'🕐');Q('"Where" is used to ask about a ...','place',['time','reason'],'🏠');
+Q('"Why" is used to ask about the ...','reason',['place','time'],'❓');Q('"How" is used to ask about a number, or the ... something is done','way',['place','time'],'🔢');
+Q('___ is she wiping the table? Because it is dirty.','Why',['Who','When'],'🧽');Q('___ do you like to eat? I like to eat apples.','What',['Where','Who'],'🍎');
+Q('___ are they? They are at the beach.','Where',['Who','Why'],'🏖️');Q('___ is cycling? Tim is cycling.','Who',['What','Where'],'🚲');
+Q('___ is the fastest land animal? It is a cheetah.','What',['Who','Where'],'🐆');Q('___ do you eat your breakfast? I eat my breakfast at 7 o\'clock.','When',['Where','Who'],'🍳');
+Q('___ is she? She is a nurse.','Who',['Where','When'],'👩‍⚕️');Q('___ do you catch the school bus? At 8:00 am.','When',['Where','Why'],'🚌');
+Q('___ are you carrying an umbrella? Because it\'s raining.','Why',['Who','When'],'☔');Q('___ is it? It is a clock.','What',['Who','When'],'🕐');
+/* ---------- Rearranging sentences ---------- */
+[['She','is','a','kind','girl'],['I','ate','my','lunch'],['Tim','ran','up','the','hill'],['Our','car','is','blue'],['It','is','fun','playing','in','the','snow'],['The','spider','makes','a','web'],
+ ['I','like','apples'],['The','cow','is','big'],['She','is','a','doctor'],['The','cat','is','under','the','bed'],['This','is','my','house'],['Alice','lives','in','a','flat'],
+ ['The','hen','gives','us','eggs'],['The','duck','swims','in','the','pond'],['Deepa','likes','cartoons'],['I','like','policemen'],['These','are','ants'],['That','is','a','bee']]
+ .forEach(w=>X.push(O('Put the words in order.',w,' ','en-US')));
+BANK.en=X;
+})();
+
+BANK.en.forEach((q,i)=>q.id='en'+i);BANK.bm.forEach((q,i)=>q.id='bm'+i);BANK.zh.forEach((q,i)=>q.id='zh'+i);
+
+/* ---------- math generator (bilingual zh + en) ---------- */
+function near(a){ const c=[a-1,a+1,a-2,a+2,a+10,a-10].filter(x=>x>=0&&x!==a); return shuffle(c).slice(0,2) }
+function MQ(zh,en,a,wrong,extra){ const hz=/[\u4e00-\u9fff]/.test(zh); return Object.assign({t:'choice',math:true,text:hz?en:`${zh}<small>${en}</small>`,say:hz?en:zh,a:String(a),opts:[String(a),...wrong.map(String)],emoji:''},extra||{}) }
+function clockSVG(h,m){
+  const ha=((h%12)*30+m*.5)*Math.PI/180, ma=m*6*Math.PI/180;
+  let ticks='';for(let i=0;i<12;i++){const a=i*30*Math.PI/180;ticks+=`<text x="${85+62*Math.sin(a)}" y="${90-62*Math.cos(a)}" font-size="16" font-weight="800" text-anchor="middle" fill="#2b2350">${i===0?12:i}</text>`}
+  return `<svg class="clock" viewBox="0 0 170 170"><circle cx="85" cy="85" r="80" fill="#fff" stroke="#2b2350" stroke-width="5"/>${ticks}<line x1="85" y1="85" x2="${85+38*Math.sin(ha)}" y2="${85-38*Math.cos(ha)}" stroke="#e4572e" stroke-width="7" stroke-linecap="round"/><line x1="85" y1="85" x2="${85+56*Math.sin(ma)}" y2="${85-56*Math.cos(ma)}" stroke="#2f80ed" stroke-width="5" stroke-linecap="round"/><circle cx="85" cy="85" r="5" fill="#2b2350"/></svg>`;
+}
+const NAMES=[['小明','Ming'],['小美','Mei'],['阿强','Ah Keong'],['小花','Hua']];
+const WORDITEMS=[['苹果','apples','🍎'],['气球','balloons','🎈'],['糖果','sweets','🍬'],['玩具车','toy cars','🚗'],['贴纸','stickers','⭐']];
+const fmtT=(h,m)=>`${h}:${m<10?'0'+m:m}`;
+const fmtRM=c=>'RM'+(c/100).toFixed(2);
+const ADDT=[['安娜买了 {a} 粒咖喱面包和 {b} 粒巧克力面包，她共买了多少粒面包？','Anna buys {a} curry buns and {b} chocolate buns. How many buns altogether?','🥐'],['梅有 {a} 只黄色的鱼和 {b} 只红色的鱼，她共有多少只鱼？','May has {a} yellow fish and {b} red fish. How many fish altogether?','🐟'],['汤姆有 {a} 颗糖果，妈妈又给他 {b} 颗，现在共有多少颗糖果？','Tom has {a} candies. His mother gave him {b} more. How many candies altogether?','🍬']];
+const SUBT=[['停车场有 {a} 辆汽车，{b} 辆汽车开走了。还剩多少辆汽车？','There are {a} cars in the parking lot. {b} cars drove away. How many cars are left?','🚗'],['池塘里有 {a} 只青蛙，{b} 只青蛙跳走了。池塘里还剩多少只青蛙？','There are {a} frogs in the pond. {b} frogs jumped away. How many frogs are left?','🐸'],['盘子里有 {a} 块纸杯蛋糕，妈妈给了邻居 {b} 块。盘子里还剩多少块？','There are {a} cupcakes on the plate. Mom gave {b} to the neighbour. How many cupcakes are left?','🧁']];
+const RMITEMS=[['🥤','energy drink',480],['🍕','pizza',690],['🍟','chips',155],['🍰','cake',395]];
+function genMath(P){
+  const R=P<10?20:P<30?50:100;
+  const pool=['compare','next','add','sub','addw','subw','clock','coin','tens','chart'];
+  if(P<20)pool.push('bond','bond','count');
+  if(P<15)pool.push('numline');
+  if(P>=8)pool.push('carry','borrow','minutes');
+  if(P>=15)pool.push('hundreds','pastfut','carry','borrow','candy');
+  if(P>=25)pool.push('rmsum','rmsum');
+  const type=pick(pool);
+  let q;
+  switch(type){
+   case 'count':{const n=1+rnd(Math.min(R,12)),e=pick(['🍎','⭐','🐟','🎈','🍪']);q=MQ('有几个？','How many?',n,near(n),{scene:`<div class="scene" style="font-size:36px;flex-wrap:wrap">${e.repeat(n)}</div>`});break}
+   case 'compare':{let a=1+rnd(R),b=1+rnd(R);while(a===b)b=1+rnd(R);const big=Math.random()<.5;const good=big?Math.max(a,b):Math.min(a,b),other=big?Math.min(a,b):Math.max(a,b);
+       q=MQ(big?'哪个数比较大？':'哪个数比较小？',big?'Which number is bigger?':'Which number is smaller?',good,[other]);break}
+   case 'next':{const n=2+rnd(R-2);const after=Math.random()<.5;q=after?MQ(`${n} 后面的数是？`,`What comes after ${n}?`,n+1,near(n+1)):MQ(`${n} 前面的数是？`,`What comes before ${n}?`,n-1,near(n-1));break}
+   case 'add':{const a=1+rnd(R-1),b=1+rnd(R-a);q=MQ(`${a} + ${b} = ?`,'Add',a+b,near(a+b));break}
+   case 'sub':{const a=2+rnd(R-1),b=1+rnd(a-1);q=MQ(`${a} − ${b} = ?`,'Subtract',a-b,near(a-b));break}
+   case 'tens':{const n=11+rnd(R-10),t=Math.floor(n/10),u=n%10;q=MQ(`${n} 是几个十和几个一？`,`${n} = how many tens and ones?`,`${t} tens ${u} ones`,[`${u} tens ${t} ones`,`${t+1} tens ${u} ones`]);break}
+   case 'bond':{const t=P<10?5+rnd(6):10+rnd(11),a=1+rnd(t-1);q=MQ(`${t} 可以分成 ${a} 和几？`,`Number bond: ${t} = ${a} + ?`,t-a,near(t-a));break}
+   case 'numline':{const a=5+rnd(16),b=1+rnd(Math.min(9,a-1));q=MQ(`用数线做减法：${a} − ${b} = ?`,`Subtract with the number line: ${a} − ${b}`,a-b,near(a-b),{emoji:'📏'});break}
+   case 'carry':{let a=25,b=19,g=0,m=Math.max(R,50);for(;g<300;g++){const x=11+rnd(m-12),y=11+rnd(m-12);if((x%10)+(y%10)>=10&&x+y<=99){a=x;b=y;break}}
+       q=MQ(`${a} + ${b} = ?`,'Addition with carrying (tens and ones)',a+b,near(a+b),{emoji:'➕'});break}
+   case 'borrow':{let a=45,b=29,g=0,m=Math.max(R,50);for(;g<300;g++){const x=21+rnd(Math.min(m,99)-20),y=11+rnd(x-11);if(x>y&&(x%10)<(y%10)){a=x;b=y;break}}
+       q=MQ(`${a} − ${b} = ?`,'Subtraction with borrowing (tens and ones)',a-b,near(a-b),{emoji:'➖'});break}
+   case 'addw':{const [zh,en,em]=pick(ADDT),a=2+rnd(Math.floor(R/2)),b=2+rnd(Math.floor(R/2));q=MQ(zh.replace('{a}',a).replace('{b}',b),en.replace('{a}',a).replace('{b}',b),a+b,near(a+b),{emoji:em});break}
+   case 'subw':{const [zh,en,em]=pick(SUBT),a=5+rnd(Math.floor(R/1.5)),b=1+rnd(a-1);q=MQ(zh.replace('{a}',a).replace('{b}',b),en.replace('{a}',a).replace('{b}',b),a-b,near(a-b),{emoji:em});break}
+   case 'clock':{const h=1+rnd(12),m=Math.random()<.5?0:30;const a=fmtT(h,m);const w=new Set();while(w.size<2){const x=fmtT(1+rnd(12),Math.random()<.5?0:30);if(x!==a)w.add(x)}q=MQ('现在几点？','What time is it?',a,[...w],{scene:`<div class="scene">${clockSVG(h,m)}</div>`});break}
+   case 'minutes':{
+       if(Math.random()<.15){q=MQ('一小时有几分钟？','How many minutes are there in an hour?','60',['30','100'],{emoji:'⏰'});break}
+       const h=1+rnd(12),m=5*rnd(12),a=fmtT(h,m),w=new Set();
+       while(w.size<2){const x=Math.random()<.5?fmtT(h,(m+5*(1+rnd(11)))%60):fmtT(1+rnd(12),m);if(x!==a)w.add(x)}
+       q=MQ('现在几点？（短针是小时，长针是分钟）','What time is it? (short hand = hour, long hand = minutes)',a,[...w],{scene:`<div class="scene">${clockSVG(h,m)}</div>`});break}
+   case 'pastfut':{const h=1+rnd(12),m=5*rnd(12),fut=Math.random()<.5,t=fmtT(h,m);
+       const tm=((h%12)*60+m+(fut?5:-5)+720)%720,hh=Math.floor(tm/60)||12,mm=tm%60,a=fmtT(hh,mm);
+       const w=new Set();while(w.size<2){const x=fmtT(hh,(mm+5*(1+rnd(11)))%60);if(x!==a)w.add(x)}
+       q=MQ(`现在是 ${t}。5 分钟${fut?'后':'前'}是几点？`,`It is ${t} now. What time is it 5 minutes ${fut?'later':'ago'}?`,a,[...w],{scene:`<div class="scene">${clockSVG(h,m)}</div>`});break}
+   case 'chart':{const names=['Joshua','Ava','Lily','Laura','Jessica','Timmy'];let flags,cnt;do{flags=names.map(()=>Math.random()<.5);cnt=flags.filter(Boolean).length}while(cnt<1);
+       const tb='<table class="ctab"><tr><td></td><td>Yes ✔</td><td>No</td></tr>'+names.map((n,i)=>`<tr><td>${n}</td><td>${flags[i]?'✔':''}</td><td>${flags[i]?'':'✔'}</td></tr>`).join('')+'</table>';
+       q=MQ('「Yes」那一栏有几个 ✔？','How many ticks are in the "Yes" column?',cnt,near(cnt),{scene:tb});break}
+   case 'hundreds':{const k=2+rnd(8);
+       if(Math.random()<.6)q=MQ(`每袋有 100 颗弹珠，${k} 袋一共有几颗？`,`Each bag has 100 marbles. How many marbles in ${k} bags?`,k*100,[k*100+100,k*100-100],{emoji:'🔮'});
+       else q=MQ(`${k*100} 是几个一百？`,`${k*100} = how many hundreds?`,k,near(k).map(x=>Math.max(1,x)),{emoji:'💯'});break}
+   case 'coin':{const cs=[5,10,20,50],n=2+rnd(3),arr=Array.from({length:n},()=>pick(cs)),sum=arr.reduce((x,y)=>x+y,0);
+       q=MQ(arr.map(x=>`🪙${x}sen`).join(' + ')+' = ?','Add the coins',money(sum),[money(sum+10),money(Math.max(5,sum-10))],{emoji:'🪙'});break}
+   case 'candy':{const cs=[5,10,12,15],n=2+rnd(2),arr=Array.from({length:n},()=>pick(cs)),sum=arr.reduce((x,y)=>x+y,0);
+       q=MQ(arr.map(x=>`🍬${x}sen`).join(' + ')+' = ?','Add the prices of the sweets',sum+'sen',[(sum+5)+'sen',Math.max(1,sum-5)+'sen'],{emoji:'🍬'});break}
+   case 'rmsum':{let x=pick(RMITEMS),y=pick(RMITEMS);while(y===x)y=pick(RMITEMS);const sum=x[2]+y[2];
+       q=MQ(`${x[0]} ${fmtRM(x[2])} + ${y[0]} ${fmtRM(y[2])} 一共多少钱？`,`${x[1]} ${fmtRM(x[2])} + ${y[1]} ${fmtRM(y[2])}. What is the total?`,fmtRM(sum),[fmtRM(sum+100),fmtRM(sum-100)],{emoji:x[0]+y[0]});break}
+  }
+  q.opts=Array.from(new Set(q.opts));
+  while(q.opts.length<2)q.opts.push(String(+q.a+1));
+  return q;
+}
+
+/* ---------- change-making mini game (money) ---------- */
+function money(sen){ if(sen<100)return sen+'sen'; const r=sen/100; return 'RM'+(Number.isInteger(r)?r:r.toFixed(2)) }
+function genChange(P){
+  const items=[['🧸','玩具','toy'],['🍪','饼干','biscuit'],['🥤','饮料','drink'],['🍦','雪糕','ice cream'],['✏️','铅笔','pencil'],['🎈','气球','balloon']];
+  const [em,zh,en]=pick(items);
+  let price,pay;
+  if(P<10){price=100*(1+rnd(4));pay=500}
+  else if(P<30){price=50*(2+rnd(8));pay=pick([500,1000])}
+  else{price=10*(10+rnd(80));pay=pick([1000,2000])}
+  if(pay<=price)pay=price<=500?500:price<=1000?1000:2000;
+  const ans=pay-price;
+  const cands=P<10?[ans+100,ans-100,ans+200]:P<30?[ans+50,ans-50,ans+100,ans-100]:[ans+10,ans-10,ans+20,ans+50,ans-50];   // easy levels: whole-RM differences only
+  let wrong=shuffle([...new Set(cands.filter(x=>x!==ans&&x>0))]).slice(0,2);
+  while(wrong.length<2)wrong.push(ans+100*(wrong.length+1));
+  const q=MQ(`${zh} ${money(price)}，你付 ${money(pay)}。找回多少？`,`${en} ${money(price)}, you pay ${money(pay)}. Change?`,money(ans),wrong.map(money),{emoji:em+'💵'});
+  q.sk='math';q.opts=[...new Set(q.opts)];
+  return q;
+}
+
+/* ================= question picking ================= */
+function pickQs(sk,n,P){
+  let out;
+  if(sk==='math'){out=[];for(let i=0;i<n;i++)out.push(genMath(P))}
+  else{
+    const b=BANK[sk].map(q=>{const st=S.q[q.id]||{r:0,w:0};return {q,s:st.w*2-st.r*.5+Math.random()*3}});
+    b.sort((x,y)=>y.s-x.s);
+    out=b.slice(0,n).map(x=>x.q);
+  }
+  out.forEach(q=>q.sk=sk);
+  return out;
+}
+
+/* ================= screens ================= */
+const app=$('#app');
+
+function eqBar(p){return '<div class="eqbar">'+SLOTS.map(sl=>{const id=p.equip[sl];return `<div class="eqs ${id?'on':''}">${id?`<img src="assets/items/${id}.png" alt="">`:SLOT_EMO[sl]}</div>`}).join('')+'</div>'}
+
+function pickScreen(){                                    // first buddy: any of the 6 is free, the rest unlock with stars
+  app.innerHTML=`<div class="title">Choose your first buddy</div><div class="sub2">The other buddies unlock as you earn ⭐</div>
+  <div class="pgrid">${Object.keys(PETS).map(k=>`<button class="pcard" data-k="${k}"><div class="pimg"><img src="assets/pets/${k}_1.png" alt=""></div>${PETS[k].name}<small>New buddy</small></button>`).join('')}</div>`;
+  app.querySelectorAll('.pcard').forEach(b=>b.onclick=()=>{const k=b.dataset.k;S.current=k;pet(k);S.unlocked={[k]:1};S.order=Object.keys(PETS).filter(x=>x!==k);save();sndOK();homeScreen()});
+}
+function avatarOf(pl){const d=pl.data,k=d.current;if(!k)return '<div class="av q">?</div>';const st=(d.pets[k]&&d.pets[k].stage)||1;return `<div class="av">${thumb(k,st,70)}</div>`}
+function whoScreen(){
+  G.active=null;S={current:null,pets:{},sound:true,q:{}};
+  if(!G.players.length)return addScreen(true);
+  app.innerHTML=`<div class="title">Who is playing?</div><div class="sub2">Tap your name to play · ✏️ to edit</div>
+  <div class="plist">${G.players.map(pl=>{const d=pl.data,k=d.current,p=k&&d.pets[k];const sm=k?`${PETS[k].name} · Lv${p?p.stage:1} · P${p?power(p):1}`:'Pick your buddy';return `<div class="prow"><button class="pbtn" data-id="${pl.id}">${avatarOf(pl)}<div><span class="pn">${esc(pl.name)}</span><small>${sm}</small></div></button><button class="pedit" data-id="${pl.id}">✏️</button></div>`}).join('')}</div>
+  <button class="next" id="addp">＋ Add player</button>`;
+  app.querySelectorAll('.pbtn').forEach(b=>b.onclick=()=>{sndOK();login(b.dataset.id);S.current?homeScreen():pickScreen()});
+  app.querySelectorAll('.pedit').forEach(b=>b.onclick=()=>editPlayer(b.dataset.id));
+  $('#addp').onclick=()=>addScreen(false);
+}
+function addScreen(first){
+  app.innerHTML=`<div class="title">${first?'Welcome! 🌟':'New player'}</div><div class="sub2">What is your name?</div>
+  <input id="nm" class="nm" maxlength="12" placeholder="Type your name" autocomplete="off">
+  <button class="next" id="go">Let's go! →</button>${G.players.length?'<button class="ghost" id="bk">← Back</button>':''}`;
+  const inp=$('#nm');
+  const go=()=>{const v=inp.value.trim();if(!v){inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),400);return}addPlayer(v)};
+  $('#go').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};
+  const bk=$('#bk');if(bk)bk.onclick=whoScreen;
+  setTimeout(()=>{try{inp.focus()}catch(e){}},50);
+}
+function editPlayer(id){
+  const pl=G.players.find(p=>p.id===id);if(!pl)return;
+  const o=document.createElement('div');o.className='modal';
+  o.innerHTML=`<div class="mbox"><div class="title" style="font-size:22px;margin:0">Edit player</div><input id="enm" class="nm" maxlength="12" value="${esc(pl.name)}"><button class="next" id="esave">Save</button><button class="ghost" id="edel">🗑️ Remove player</button><button class="ghost" id="ecan">Cancel</button></div>`;
+  document.body.appendChild(o);
+  $('#esave').onclick=()=>{const v=$('#enm').value.trim().slice(0,12);if(v)pl.name=v;save();o.remove();whoScreen()};
+  let armed=false;
+  $('#edel').onclick=function(){if(!armed){armed=true;this.textContent='Tap again to delete all progress';this.style.background='#ffd9d9';return}G.players=G.players.filter(p=>p.id!==id);save();o.remove();whoScreen()};
+  $('#ecan').onclick=()=>o.remove();
+}
+
+function drawMosaics(){
+  document.querySelectorAll('canvas.mosaic').forEach(c=>{
+    const img=new Image();img.onload=()=>{
+      const t=document.createElement('canvas');t.width=t.height=20;t.getContext('2d').drawImage(img,0,0,20,20);
+      const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.clearRect(0,0,c.width,c.height);x.drawImage(t,0,0,c.width,c.height);
+      x.globalCompositeOperation='source-atop';x.fillStyle='rgba(40,20,110,.62)';x.fillRect(0,0,c.width,c.height);
+    };img.src=c.dataset.src;
+  });
+}
+const TIERS=[[10,'Blue light pillar'],[20,'Purple pillar + stars'],[30,'Gold pillar + crown'],[40,'Fire trail'],[50,'Bigger + golden glow'],[100,'Rainbow aura']];
+function evoPreview(p,k){
+  const r=EVO[p.stage];
+  if(r){
+    const needS=Math.max(0,r.stars-p.stars);
+    const rows=[['⭐ Stars',needS>0?needS+' more':'✓'],...SKEYS.map(s=>[SUBJ[s].name,p.correct[s]>=r.each?'✓':(r.each-p.correct[s])+' more'])];
+    const ready=rows.every(x=>x[1]==='✓');
+    const body=ready?'<div class="br ok"><span>Ready!</span><b>✓</b></div>':rows.map(([a,b])=>`<div class="br ${b==='✓'?'ok':''}"><span>${a}</span><b>${b}</b></div>`).join('');
+    return `<div class="evoprev"><div class="bubble"><div class="bt">${ready?'Evolving…':'To evolve'}</div>${body}</div><canvas class="mosaic" width="104" height="104" data-src="assets/pets/${k}_${p.stage+1}.png"></canvas><div class="q">?</div></div>`;
+  }
+  const P=power(p),nt=TIERS.find(t=>t[0]>P);
+  if(!nt)return '';
+  const ico=nt[0]>=100?'🌈':nt[0]>=50?'🌟':nt[0]>=40?'🔥':nt[0]>=30?'👑':nt[0]>=20?'💜':'💙';
+  return `<div class="evoprev"><div class="bubble"><div class="bt">Next glow · P${nt[0]}</div><div class="br" style="white-space:normal"><span>${nt[1]}</span></div><div class="br"><span>⭐ To go</span><b>${Math.max(0,needStars(nt[0])-p.stars)}</b></div></div><div class="tierico">${ico}</div></div>`;
+}
+
+/* ---------- maps: Star Town (home) + Battle World ---------- */
+const SPOTS={
+ l:{town:{bm:[.209,.299],en:[.800,.291],math:[.245,.735],zh:[.764,.759],pet:[.495,.60]},
+    battle:{slime:[.323,.480],mushroom:[.241,.622],beetle:[.273,.695],boss_rock:[.335,.304],jelly:[.536,.375],crab:[.577,.691],urchin:[.571,.851],boss_thunder:[.616,.213],lavaslime:[.723,.557],flame:[.700,.643],turtle:[.673,.756],boss_fire:[.745,.307],tower:[.895,.46]}},
+ p:{town:{bm:[.245,.322],en:[.759,.322],math:[.206,.689],zh:[.769,.678],pet:[.502,.544]},
+    battle:{slime:[.411,.703],mushroom:[.664,.700],beetle:[.609,.753],boss_rock:[.757,.633],jelly:[.771,.456],crab:[.581,.542],urchin:[.692,.513],boss_thunder:[.804,.389],lavaslime:[.429,.371],flame:[.457,.412],turtle:[.646,.340],boss_fire:[.352,.256],tower:[.652,.167]}}
+};
+const orient=()=>window.innerWidth>=window.innerHeight*1.05?'l':'p';
+const unitOf=(o,bx)=>o==='l'?bx.h:bx.w;
+function mapBox(o){
+  const W=window.innerWidth,H=window.innerHeight;
+  if(o==='l'){const h=Math.min(H-20,(W-20)*9/16,900);return {w:Math.round(h*16/9),h:Math.round(h)}}
+  const w=Math.min(W-16,640);return {w:Math.round(w),h:Math.round(w*16/9)};
+}
+let LASTO=null;
+addEventListener('resize',()=>{const m=document.querySelector('.map');if(!m)return;const o=orient();if(o===LASTO&&Math.abs((m.offsetWidth||0)-mapBox(o).w)<40)return;
+  clearTimeout(window.__rt);window.__rt=setTimeout(()=>{const sc=m.dataset.scr;if(sc==='home')homeScreen();else if(sc==='battle')battleScreen()},200)});
+
+function homeScreen(){
+  if(!G.active)return whoScreen();
+  if(!S.current)return pickScreen();
+  const newly=checkUnlocks();
+  const o=orient();LASTO=o;const bx=mapBox(o),sp=SPOTS[o].town;
+  const k=S.current,p=cur(),P=power(p),ne=nextExam(),st=stats(p);
+  let chip='🎓 Keep practising!';
+  if(ne){const d=daysTo(SUBJ[ne].date);chip=d===0?`🔥 ${SUBJ[ne].name} exam is TODAY!`:`🏆 ${SUBJ[ne].name} exam in ${d} day${d===1?'':'s'}`}
+  let label,pct;
+  const r=EVO[p.stage];
+  if(r){pct=Math.min(p.stars,r.stars)/r.stars*100;label=`⭐ ${p.stars} / ${r.stars} (evolve)`}
+  else{const lo=needStars(P),hi=needStars(P+1);pct=(p.stars-lo)/(hi-lo)*100;label=`⭐ ${p.stars} · ${hi-p.stars} to next level`}
+  const subs=r?SKEYS.map(s=>`<span class="sub ${p.correct[s]>=r.each?'ok':''}">${SUBJ[s].name} ${Math.min(p.correct[s],r.each)}/${r.each}</span>`).join(''):'';
+  const capHint=(p.stage<3&&rawPower(p.stars)>CAP[p.stage])?' · evolve to keep levelling':'';
+  const houses=SKEYS.map(s=>{const [x,y]=sp[s];const prog=r?`${Math.min(p.correct[s],r.each)}/${r.each}`:'';
+    return `<button class="house s-${s}" data-s="${s}" style="left:${x*100}%;top:${y*100}%"><span class="hlab">${SUBJ[s].emoji} ${SUBJ[s].name}${prog?` <small>${prog}</small>`:''}${ne===s?'<span class="x2">⭐×2</span>':''}</span></button>`}).join('');
+  const U=unitOf(o,bx),petSize=Math.round(o==='l'?U*.36:U*.34);
+  const card=`<div class="card2"><div class="pname">${PETS[k].name} <span class="lv">Lv${p.stage}</span> <span class="pow" style="font-size:.7em">⚡P${P}</span></div>
+    <div class="stline">⚔️ ${st.atk} · ❤️ ${st.hp}${capHint}</div>${eqBar(p)}
+    <div class="bar"><i style="width:${Math.max(0,Math.min(100,pct))}%"></i><span>${label}</span></div>
+    ${subs?`<div class="subs">${subs}</div>`:''}
+    ${canEvolve(p)?'<button class="evo" id="evo">✨ Ready to evolve! ✨</button>':''}</div>`;
+  const dock=`<div class="dock"><button class="abtn a-battle" id="bt">⚔️<b>Battle</b></button><button class="abtn a-shop" id="sh">🛍️<b>Shop</b></button><button class="abtn a-bag" id="bg">🎒<b>Bag</b></button></div>`;
+  const inside=o==='l'?card+dock:'',below=o==='l'?'':`<div class="under">${card}${dock}</div>`;
+  app.innerHTML=`<div class="map ${o}${U<520?' small':''}" data-scr="home" style="width:${bx.w}px;height:${bx.h}px;--mh:${U}px;background-image:url(assets/maps/startown_${o}.jpg)">
+    <div class="hud-top"><div class="adv"><b>${esc(curPlayer().name)}'s Adventure</b><small>Learn · Collect · Battle!</small></div>
+      <div class="chips"><div class="chip">${chip}</div><div class="chip gem">💎 ${p.gems}</div><button class="icon-btn" id="snd">${S.sound?'🔊':'🔇'}</button><button class="icon-btn" id="who">👥</button></div></div>
+    ${houses}
+    <div class="petspot" style="left:${sp.pet[0]*100}%;top:${sp.pet[1]*100}%">${petHTML(k,p.stage,P,petSize)}${evoPreview(p,k)}</div>
+    ${inside}</div>${below}`;
+  $('#snd').onclick=()=>{S.sound=!S.sound;save();homeScreen()};
+  $('#who').onclick=whoScreen;
+  $('#bt').onclick=battleScreen;$('#sh').onclick=shopScreen;$('#bg').onclick=()=>{BAGTAB='fighters';bagScreen()};
+  app.querySelectorAll('.house').forEach(b=>b.onclick=()=>{sndOK();startRound(b.dataset.s)});
+  const e=$('#evo');if(e)e.onclick=evolveScreen;
+  drawMosaics();maybeEvolve(900);
+  if(newly.length){sndUP();popText('🎉 New buddy unlocked: '+newly.map(x=>PETS[x].name).join(', ')+'!');confetti(40)}
+}
+
+/* ---------- bag: fighters (collect them all) + gear ---------- */
+let BAGTAB='fighters';
+function bagScreen(){
+  const p=cur(),total=totalStars();
+  let body='';
+  if(BAGTAB==='fighters'){
+    body=`<div class="sub2">Total ⭐ earned: ${total}</div><div class="pgrid">${Object.keys(PETS).map(k=>{
+      if(S.unlocked[k]){const pp=S.pets[k],stg=pp?pp.stage:1;return `<button class="pcard ${S.current===k?'cur':''}" data-k="${k}">${thumb(k,stg,140)}${PETS[k].name}<small>${pp?`Lv${pp.stage} · P${power(pp)}`:'New buddy'}${S.current===k?' · playing':''}</small></button>`}
+      const need=Math.max(0,UNLOCK_AT[S.order.indexOf(k)]-total);
+      return `<div class="pcard locked"><div class="pimg"><canvas class="mosaic" width="120" height="120" data-src="assets/pets/${k}_1.png"></canvas></div>???<small>⭐ ${need} more to unlock</small></div>`}).join('')}</div>`;
+  }else{
+    const ids=Object.keys(ITEMS),got=ids.filter(id=>p.owned[id]).length;
+    body=`<div class="sub2">Collected ${got} / ${ids.length}</div><div class="gearg">${ids.map(id=>`<div class="gi ${p.owned[id]?'':'off'}"><img src="assets/items/${id}.png" alt=""><div>${p.owned[id]?ITEMS[id].n:'???'}</div></div>`).join('')}</div><button class="next" id="gs">🛍️ Go to shop</button>`;
+  }
+  app.innerHTML=`<div class="top"><button class="ghost" id="back">← Back</button><div class="chip gem">💎 ${p.gems}</div></div>
+  <div class="title" style="margin:2px 0">🎒 Bag</div>
+  <div class="tabs"><button class="tab ${BAGTAB==='fighters'?'on':''}" data-t="fighters">🦁 Fighters</button><button class="tab ${BAGTAB==='gear'?'on':''}" data-t="gear">🛡️ Gear</button></div>${body}`;
+  $('#back').onclick=homeScreen;
+  app.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{BAGTAB=b.dataset.t;bagScreen()});
+  app.querySelectorAll('.pcard[data-k]').forEach(b=>b.onclick=()=>{S.current=b.dataset.k;pet(S.current);save();sndOK();homeScreen()});
+  const gs=$('#gs');if(gs)gs.onclick=shopScreen;
+  drawMosaics();
+}
+
+/* ---------- shop ---------- */
+let SHOPCAT='sword';
+function shopScreen(){
+  const p=cur(),k=S.current,P=power(p);
+  const list=Object.keys(ITEMS).filter(id=>ITEMS[id].cat===SHOPCAT);
+  app.innerHTML=`<div class="top"><button class="ghost" id="back">← Back</button><div class="chip gem">💎 ${p.gems}</div></div>
+  <div class="stage" style="height:250px">${petHTML(k,p.stage,P,220)}</div>
+  <div class="info">${eqBar(p)}<div class="stline">⚔️ Attack ${stats(p).atk} · ❤️ HP ${stats(p).hp}</div></div>
+  <div class="tabs">${Object.keys(CATS).map(c=>`<button class="tab ${c===SHOPCAT?'on':''}" data-c="${c}">${CATS[c]}</button>`).join('')}</div>
+  <div class="items">${list.map(id=>{const it=ITEMS[id],own=p.owned[id],worn=p.equip[it.slot]===id;
+    const btn=own?(worn?`<button class="buy on" data-id="${id}" data-a="off">Take off</button>`:`<button class="buy wear" data-id="${id}" data-a="wear">Wear</button>`):`<button class="buy ${p.gems>=it.price?'':'off'}" data-id="${id}" data-a="buy">💎 ${it.price} Buy</button>`;
+    return `<div class="icard"><img src="assets/items/${id}.png" alt=""><div>${it.n}</div><small>${bonusText(it)}</small>${btn}</div>`}).join('')}</div>
+  <button class="next" id="chg2" style="background:#27ae60;box-shadow:0 5px 0 #177a41">💰 Change game (earn 💎)</button>`;
+  $('#back').onclick=homeScreen;
+  $('#chg2').onclick=()=>startRound('math',{change:true});
+  app.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{SHOPCAT=b.dataset.c;shopScreen()});
+  app.querySelectorAll('.buy').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.id,it=ITEMS[id],a=b.dataset.a;
+    if(a==='buy'){if(p.gems<it.price){sndNO();popText('Not enough 💎 – win battles or play the change game!');return}p.gems-=it.price;p.owned[id]=1;p.equip[it.slot]=id;save();sndUP();popText('Got it! 🎉');confetti(15)}
+    else if(a==='wear'){p.equip[it.slot]=id;save();sndOK()}
+    else{delete p.equip[it.slot];save()}
+    shopScreen();
+  });
+}
+
+/* ---------- battle ---------- */
+/* Battle World is a level path: beat one monster to unlock the next, boss last, then the next region, tower at the very end */
+const ORDER=['slime','mushroom','beetle','boss_rock','jelly','crab','urchin','boss_thunder','lavaslime','flame','turtle','boss_fire'];
+function isOpen(p,key){if(key==='tower')return !!p.beat.boss_fire;const i=ORDER.indexOf(key);return i===0||!!p.beat[ORDER[i-1]]}
+function nextLevel(p){for(const k of ORDER)if(!p.beat[k])return k;return 'tower'}
+let BPOOL='mix';
+function battleScreen(){
+  if(!G.active)return whoScreen();
+  const o=orient();LASTO=o;const bx=mapBox(o),U=unitOf(o,bx),sp=SPOTS[o].battle,p=cur(),P=power(p),st=stats(p);
+  const nl=nextLevel(p);
+  const spots=Object.keys(MON).map(key=>{const m=MON[key],[x,y]=sp[key],lock=!isOpen(p,key),fresh=key===nl,lv=ORDER.indexOf(key)+1,tag=m.boss?'BOSS':'Lv '+lv;
+    const d=Math.round(m.boss?U*(o==='l'?.17:.2):U*(o==='l'?.10:.11));
+    return `<button class="spot ${m.boss?'boss':''} ${lock?'lock':''} ${fresh?'fresh':''}" data-k="${key}" style="left:${x*100}%;top:${y*100}%;--d:${d}px;z-index:${10+Math.round(y*100)}"><span class="sring"></span><img src="assets/monsters/${m.img}.png" alt=""><span class="slab">${lock?'🔒 '+tag:(p.beat[key]?'✔ '+tag:tag)}</span></button>`}).join('');
+  const [tx,ty]=sp.tower,tw=isOpen(p,'tower'),td=Math.round(U*(o==='l'?.17:.2));
+  const tower=`<button class="spot boss ${tw?'fresh':'lock'}" id="tw" style="left:${tx*100}%;top:${ty*100}%;--d:${td}px;z-index:40"><span class="sring"></span><span class="tower">✨</span><span class="slab">${tw?'Floor '+(p.tower+1):'🔒 Tower'}</span></button>`;
+  app.innerHTML=`<div class="map ${o}${U<520?' small':''}" data-scr="battle" style="width:${bx.w}px;height:${bx.h}px;--mh:${U}px;background-image:url(assets/maps/battleworld_${o}.jpg)">
+    <button class="ghost hud-back" id="back">← Back</button>
+    <div class="hud-top"><div class="chips"><div class="chip">⚔️ ${st.atk} · ❤️ ${st.hp}</div><div class="chip gem">💎 ${p.gems}</div></div></div>
+    ${spots}${tower}<div class="hud-hint">${nl==='tower'?'The Endless Tower is open – keep climbing!':'Next level: '+MON[nl].n+' – tap the glowing place!'}</div></div>`;
+  $('#back').onclick=homeScreen;
+  app.querySelectorAll('.spot[data-k]').forEach(b=>b.onclick=()=>fightCard(b.dataset.k));
+  $('#tw').onclick=()=>fightCard('tower');
+}
+function fightCard(key){
+  const p=cur(),P=power(p),tower=key==='tower';
+  const m=tower?towerMon(p.tower+1):MON[key];
+  const lock=!isOpen(p,key),prev=tower?MON.boss_fire:MON[ORDER[ORDER.indexOf(key)-1]];
+  const pool=[['mix','🎲 Mixed'],...SKEYS.map(s=>[s,SUBJ[s].name])];
+  const o=document.createElement('div');o.className='modal';
+  o.innerHTML=`<div class="mbox fight"><img class="fimg" src="assets/monsters/${m.img}.png" alt="">
+   <div class="title" style="margin:0;font-size:24px">${m.n}${m.boss?' 👹':''}</div>
+   <div class="sub2" style="margin:0">${m.hp} hits · counter ${m.hit} · 💎 ${m.gems}${tower?'':'<br>Recommended power: P'+m.req}</div>
+   <div class="note2" style="text-align:center">About 10 questions: a right answer = your pet rushes in and hits; a wrong answer = the monster hits back. If your pet runs out of HP it just rests – you lose nothing.</div>
+   <div class="regt" style="text-align:center;margin:0">Which subject?</div><div class="pills" id="fpills">${pool.map(([v,n])=>`<button class="pill ${BPOOL===v?'on':''}" data-v="${v}">${n}</button>`).join('')}</div>
+   ${lock?`<div class="lockmsg">🔒 Beat ${prev?prev.n:'the previous level'} first to unlock this level!</div>`:'<button class="next" id="fgo">Fight! ⚔️</button>'}
+   <button class="ghost" id="fcl">Close</button></div>`;
+  document.body.appendChild(o);
+  o.querySelectorAll('.pill').forEach(b=>b.onclick=()=>{BPOOL=b.dataset.v;o.querySelectorAll('.pill').forEach(x=>x.classList.toggle('on',x===b))});
+  $('#fcl').onclick=()=>o.remove();
+  const g=$('#fgo');if(g)g.onclick=()=>{o.remove();startBattle(m)};
+}
+function startBattle(mon){
+  const p=cur(),st=stats(p);
+  Q={mode:'battle',sk:null,pool:BPOOL,mon,monMax:mon.hp,monHP:mon.hp,petMax:st.hp,petHP:st.hp,st,qs:[],i:-1,gained:0,combo:0,right:0,startP:power(p),log:[],lastSk:null,lastId:null,over:null};
+  nextBattleQ();
+}
+function nextBattleQ(){
+  const P=power(cur());
+  const sk=Q.pool==='mix'?pick(SKEYS.filter(s=>s!==Q.lastSk)):Q.pool;
+  Q.lastSk=sk;
+  let cand=pickQs(sk,3,P).filter(q=>!q.id||q.id!==Q.lastId);
+  if(!cand.length)cand=pickQs(sk,3,P);
+  const q=pick(cand);Q.lastId=q.id||null;
+  Q.qs.push(q);Q.i=Q.qs.length-1;showQ();
+}
+function bHead(){
+  const k=S.current,p=cur(),m=Q.mon;
+  return `<div class="qtop"><button class="icon-btn" id="x">✖</button><div class="chip">${m.boss?'👹 Boss fight':'⚔️ Battle'}</div><div class="chip">⭐ ${Q.gained}</div></div>
+  <div class="bscene"><div class="bside" id="bp">${petHTML(k,p.stage,power(p),orient()==='l'?210:150)}<div class="hp pet"><i id="php" style="width:${Q.petHP/Q.petMax*100}%"></i><span id="phpt">❤️ ${Q.petHP}/${Q.petMax}</span></div></div><div class="vs">⚔️</div>
+  <div class="bside" id="bm"><img class="mimg" src="assets/monsters/${m.img}.png" alt=""><div class="hp mon" style="--segs:${Q.monMax}"><i id="mhp" style="width:${Q.monHP/Q.monMax*100}%"></i><span id="mhpt">${m.n} ${Q.monHP}/${Q.monMax}</span></div></div></div>`;
+}
+function setHP(){
+  const a=$('#php'),b=$('#mhp');if(!a||!b)return;
+  a.style.width=Q.petHP/Q.petMax*100+'%';$('#phpt').textContent=`❤️ ${Q.petHP}/${Q.petMax}`;
+  b.style.width=Q.monHP/Q.monMax*100+'%';$('#mhpt').textContent=`${Q.mon.n} ${Q.monHP}/${Q.monMax}`;
+}
+function hitFx(sel,txt){
+  const el=$(sel);if(!el)return;
+  el.classList.remove('hurt');void el.offsetWidth;el.classList.add('hurt');
+  const t=document.createElement('div');t.className='dmg';t.textContent=txt;el.appendChild(t);setTimeout(()=>t.remove(),900);
+}
+function spark(sel,e){const el=$(sel);if(!el)return;const b=document.createElement('div');b.className='boom';b.textContent=e;el.appendChild(b);setTimeout(()=>b.remove(),600)}
+function dash(attSel,defSel,onHit){                 // attacker runs to the defender, hits, runs back
+  const a=$(attSel),d=$(defSel);
+  if(!a||!d){onHit();return}
+  const ar=a.getBoundingClientRect(),dr=d.getBoundingClientRect();
+  const dx=((dr.left+dr.width/2)-(ar.left+ar.width/2))*0.72;
+  a.style.setProperty('--dx',dx+'px');
+  a.classList.remove('dashing');void a.offsetWidth;a.classList.add('dashing');
+  setTimeout(onHit,260);
+  setTimeout(()=>a.classList.remove('dashing'),900);
+}
+function dealDamage(){
+  const crit=Q.combo>=3,hits=1,d=Math.round(Q.st.atk*(crit?1.5:1));   // crit = bigger number only, so a fight is always ~10 questions
+  Q.monHP=Math.max(0,Q.monHP-hits);
+  const over=Q.monHP<=0&&!Q.over;if(over)Q.over='win';
+  dash('#bp','#bm',()=>{hitFx('#bm',(crit?'CRIT! ':'')+'-'+d);spark('#bm',crit?'💥':'✨');setHP()});
+  if(over)setTimeout(()=>battleResult('win'),1500);
+}
+function monsterHit(){
+  const d=Q.mon.hit;
+  Q.petHP=Math.max(0,Q.petHP-d);
+  const over=Q.petHP<=0&&!Q.over;if(over)Q.over='lose';
+  dash('#bm','#bp',()=>{hitFx('#bp','-'+d);spark('#bp','💢');setHP()});
+  if(over)setTimeout(()=>battleResult('lose'),1500);
+}
+function lockQ(){
+  const q=Q.qs[Q.i];q.done=true;
+  app.querySelectorAll('.opt,.chipw').forEach(b=>b.onclick=null);
+  const fb=$('#fb');if(fb){fb.className='fb no';fb.textContent='😵 Tired…'}
+  const nx=$('#nx');if(nx)nx.innerHTML='';
+}
+function battleResult(res){
+  const p=cur(),k=S.current,P=power(p),m=Q.mon;
+  let gems=0,firstWin=false;
+  if(res==='win'){
+    gems=Math.round(m.gems*(1+Q.st.luck/100));p.gems+=gems;
+    p.beat[m.key]=(p.beat[m.key]||0)+1;firstWin=p.beat[m.key]===1;
+    if(m.tower)p.tower=Math.max(p.tower,m.tower);
+    save();sndUP();confetti(40);
+  }
+  const up=power(p)>Q.startP;
+  const oi=ORDER.indexOf(m.key),nxt=(res==='win'&&oi>=0)?(ORDER[oi+1]||'tower'):null,nxtName=nxt==='tower'?'Endless Tower':nxt&&MON[nxt].n;
+  const again=m.tower?(res==='win'?'Next floor →':'Try again'):'Fight again';
+  app.innerHTML=`<div class="center"><div class="rs">${res==='win'?'Victory! 🎉':'Time for a rest 😴'}</div>
+  <div class="stage" style="width:100%;height:260px">${petHTML(k,p.stage,power(p),230).replace('class="pv','class="pv '+(res==='win'?'hop':''))}</div>
+  <div class="info" style="width:100%">${res==='win'?`<div style="font-size:24px;font-weight:900;color:#0b6fa8">💎 +${gems}${Q.st.luck?` (luck +${Q.st.luck}%)`:''}</div>`:'<div style="font-weight:800">You lost nothing – try again, you can win!</div>'}
+   <div style="font-weight:800;color:#d9480f">⭐ +${Q.gained} (answers in battle count as practice too)</div>${up?`<div style="font-weight:900;color:#7b2ff7">⚡ Power up to P${power(p)}!</div>`:''}</div>
+  ${canEvolve(p)?'<button class="evo" id="evo" style="width:100%">✨ Ready to evolve! Tap me ✨</button>':''}
+  ${firstWin&&nxt?`<div class="lockmsg" style="background:#e8fbe8;color:#14793d">🔓 New level unlocked: ${nxtName}!</div>`:''}
+  ${nxt?`<button class="next" style="width:100%" id="nxt">Next level → ${nxtName}</button>`:''}
+  <button class="${nxt?'ghost':'next'}" style="${nxt?'':'width:100%'}" id="again">${again}</button>
+  ${res==='win'?'<button class="ghost" id="shop">🛍️ Go to shop</button>':''}
+  <button class="ghost" id="sel">Back to battles</button><button class="ghost" id="home">Home</button></div>`;
+  $('#again').onclick=()=>startBattle(m.tower?towerMon(res==='win'?m.tower+1:m.tower):m);
+  $('#sel').onclick=battleScreen;$('#home').onclick=homeScreen;
+  const nb=$('#nxt');if(nb)nb.onclick=()=>startBattle(nxt==='tower'?towerMon(p.tower+1):MON[nxt]);
+  const sh=$('#shop');if(sh)sh.onclick=shopScreen;
+  const ev=$('#evo');if(ev)ev.onclick=evolveScreen;
+  maybeEvolve(3000);
+}
+
+/* ---------- quiz ---------- */
+let Q=null;
+let EVOLVING=false;
+function maybeEvolve(delay){setTimeout(()=>{if(!EVOLVING&&S.current&&canEvolve(cur())&&$('#evo'))evolveScreen()},delay)}
+function startRound(sk,opts){
+  opts=opts||{};
+  const p=cur(),P=power(p);
+  Q={mode:'round',sk,change:!!opts.change,qs:opts.change?Array.from({length:5},()=>genChange(P)):pickQs(sk,5,P),i:0,gained:0,combo:0,right:0,boost:nextExam()===sk,startP:P,log:[],gems:0};
+  showQ();
+}
+function dotsHTML(){return Q.qs.map((_,i)=>`<span class="dot ${i===Q.i?'cur':Q.log[i]==='ok'?'ok':Q.log[i]==='no'?'no':''}"></span>`).join('')}
+function refreshDots(){const d=$('.dots');if(d)d.innerHTML=dotsHTML()}
+function qSay(q){return q.say||(q.passage?q.passage+' '+q.text:q.text.replace(/<[^>]+>/g,' '))}
+function showQ(){
+  const q=Q.qs[Q.i],s=SUBJ[q.sk||Q.sk];q.attempts=0;q.done=false;
+  const lang=q.lang||s.lang;
+  const prompt=`${q.passage?`<div class="passage">${q.passage}</div>`:''}${q.bigch?`<div class="bigch">${q.bigch}</div>`:''}${q.emoji?`<div class="big">${q.emoji}</div>`:''}${q.scene||''}<div class="qtext">${q.text}</div><button class="speak" id="say">🔊 Listen</button>`;
+  let body='';
+  if(q.t==='choice'){
+    q.shown=shuffle(q.opts);
+    const long=q.shown.some(o=>o.length>8);
+    body=`<div class="opts ${long?'one':''}">${q.shown.map((o,j)=>`<button class="opt" data-j="${j}" data-n="${j+1}">${o}</button>`).join('')}</div>`;
+  }else{
+    q.shown=shuffle(q.words);let g=0;while(q.shown.join(q.sep)===q.a&&g++<10)q.shown=shuffle(q.words);
+    q.placed=[];
+    body=`<div class="ans" id="ans"></div><div class="wbank" id="wb">${q.shown.map((w,j)=>`<button class="chipw" data-j="${j}">${w}</button>`).join('')}</div>`;
+  }
+  const head=Q.mode==='battle'?bHead():`<div class="qtop"><button class="icon-btn" id="x">✖</button><div class="dots">${dotsHTML()}</div><div class="chip">⭐ ${Q.gained}${Q.change?` · 💎 ${Q.gems}`:''}</div></div>`;
+  const boostMsg=(Q.mode==='battle'?nextExam()===(q.sk):Q.boost)?'🔥 Main subject: ⭐×2':'';
+  const rp=Q.mode==='round'&&S.current?`<div class="stage rpet">${petHTML(S.current,cur().stage,power(cur()),orient()==='l'?200:120)}</div>`:'';
+  app.innerHTML=`<div class="qlay"><div class="qleft">${head}${rp}</div><div class="qright"><div class="qcard">${prompt}</div>${body}<div class="fb" id="fb">${boostMsg}</div><div id="nx"></div></div></div>`;
+  $('#x').onclick=()=>Q.mode==='battle'?battleScreen():Q.change?shopScreen():homeScreen();
+  $('#say').onclick=()=>speak(qSay(q),lang);
+  setTimeout(()=>speak(qSay(q),lang),250);
+  if(q.t==='choice')app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answerChoice(b));
+  else app.querySelectorAll('#wb .chipw').forEach(b=>b.onclick=()=>moveChip(b));
+}
+const CHEERS=['c-hop','c-flag','c-hearts','c-stars','c-run','c-love'];
+let LASTCHEER=-1;
+function petFx(cls,ms){document.querySelectorAll('.qleft .pv, .petspot .pv').forEach(el=>{el.classList.remove(...CHEERS,'oops','idlehop');void el.offsetWidth;el.classList.add(cls);clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove(cls),ms)})}
+function cheerPet(forced){                                    // exactly ONE reaction per right answer, never the same one twice in a row
+  let i=CHEERS.indexOf(forced);
+  if(i<0){do{i=Math.floor(Math.random()*CHEERS.length)}while(i===LASTCHEER)}
+  LASTCHEER=i;petFx(CHEERS[i],i===4?1800:1700);
+}
+const oopsPet=()=>petFx('oops',650);
+function award(q){
+  const qs=q.sk||Q.sk;
+  const base=[10,5,2][Math.min(q.attempts,2)];
+  let n=base;if(nextExam()===qs)n*=2;
+  let bonus=0;
+  if(q.attempts===0){Q.combo++;if(Q.combo>=3)bonus=5}else Q.combo=0;
+  n+=bonus;
+  const p=cur();const before=power(p);
+  p.stars+=n;p.correct[qs]++;
+  Q.gained+=n;Q.right++;
+  if(Q.change){p.gems+=2;Q.gems+=2}
+  if(q.id){const st=S.q[q.id]||(S.q[q.id]={r:0,w:0});st.r++}
+  save();
+  sndOK();popText(`+${n} ⭐${bonus?' combo!':''}${Q.change?'  +2 💎':''}`);cheerPet();
+  const after=power(p);
+  if(after>before){setTimeout(()=>{sndUP();popText(`⚡ Power Up! P${after}`);confetti(20)},700)}
+  if(Q.mode==='battle')dealDamage();
+}
+function markWrong(q){
+  oopsPet();
+  if(q.id){const st=S.q[q.id]||(S.q[q.id]={r:0,w:0});st.w++}
+  Q.combo=0;
+  if(Q.mode==='battle')monsterHit();
+}
+function finishQ(ok){
+  const q=Q.qs[Q.i];q.done=true;Q.log[Q.i]=ok?'ok':'no';
+  if(Q.over)return;
+  const battle=Q.mode==='battle',last=!battle&&Q.i>=Q.qs.length-1;
+  $('#nx').innerHTML=`<button class="next" style="width:100%" id="go">${last?'See results 🎉':'Next →'}</button>`;
+  $('#go').onclick=()=>{if(battle)nextBattleQ();else{Q.i++;Q.i<Q.qs.length?showQ():resultScreen()}};
+}
+function answerChoice(btn){
+  const q=Q.qs[Q.i];if(q.done)return;
+  const val=q.shown[+btn.dataset.j],qs=q.sk||Q.sk,lang=q.lang||SUBJ[qs].lang;
+  if(qs!=='math')speak(val,lang);
+  const fb=$('#fb');
+  if(val===q.a){
+    btn.classList.add('good');award(q);
+    fb.className='fb ok';fb.textContent=['Great job! 👏','Correct! 👍','Got it!'][Math.min(q.attempts,2)];
+    app.querySelectorAll('.opt').forEach(b=>b.onclick=null);
+    refreshDots();finishQ(true);
+  }else{
+    q.attempts++;markWrong(q);sndNO();
+    btn.classList.add('bad');btn.onclick=null;btn.classList.add('shake');setTimeout(()=>btn.classList.remove('shake'),400);
+    if(Q.over==='lose'){lockQ();return}
+    fb.className='fb no';
+    if(q.attempts===1){fb.textContent='Try again 💪'}
+    else if(q.attempts===2){
+      fb.textContent='Hint: one wrong answer removed 👀';
+      const wrongs=[...app.querySelectorAll('.opt')].filter(b=>q.shown[+b.dataset.j]!==q.a&&!b.classList.contains('bad'));
+      if(wrongs.length>1)wrongs[0].classList.add('gone');
+    }else{
+      fb.textContent='This is the answer – remember it!';
+      app.querySelectorAll('.opt').forEach(b=>{if(q.shown[+b.dataset.j]===q.a)b.classList.add('good');b.onclick=null});
+      Q.log[Q.i]='no';refreshDots();finishQ(false);
+    }
+  }
+}
+function moveChip(btn){
+  const q=Q.qs[Q.i];if(q.done)return;
+  const j=+btn.dataset.j;
+  q.placed.push(j);btn.classList.add('hide');btn.onclick=null;
+  speak(q.shown[j],q.lang);
+  renderAns(q);
+  if(q.placed.length===q.words.length)setTimeout(()=>checkOrder(q),350);
+}
+function renderAns(q){
+  const a=$('#ans');a.innerHTML=q.placed.map(j=>`<button class="chipw" data-j="${j}">${q.shown[j]}</button>`).join('');
+  a.querySelectorAll('.chipw').forEach(b=>b.onclick=()=>{if(q.done)return;const j=+b.dataset.j;q.placed=q.placed.filter(x=>x!==j);const orig=$(`#wb .chipw[data-j="${j}"]`);orig.classList.remove('hide');orig.onclick=()=>moveChip(orig);renderAns(q)});
+}
+function checkOrder(q){
+  if(q.done)return;
+  const fb=$('#fb'),ans=q.placed.map(j=>q.shown[j]).join(q.sep);
+  if(ans===q.a){award(q);fb.className='fb ok';fb.textContent='Perfect order! 👏';refreshDots();finishQ(true);return}
+  q.attempts++;markWrong(q);sndNO();
+  const a=$('#ans');a.classList.add('shake');setTimeout(()=>a.classList.remove('shake'),400);
+  if(Q.over==='lose'){lockQ();return}
+  fb.className='fb no';
+  if(q.attempts<3){
+    fb.textContent=q.attempts===1?'Try again 💪':'Think again – look at the first word 👀';
+    q.placed=[];renderAns(q);
+    app.querySelectorAll('#wb .chipw').forEach(b=>{b.classList.remove('hide');b.onclick=()=>moveChip(b)});
+  }else{
+    fb.textContent='Correct: '+q.a;
+    q.placed=[];a.innerHTML=`<div class="qtext">${q.a}</div>`;
+    speak(q.a,q.lang);
+    Q.log[Q.i]='no';refreshDots();finishQ(false);
+  }
+}
+
+/* ---------- result ---------- */
+function resultScreen(){
+  const k=S.current,p=cur(),P=power(p);
+  const up=P>Q.startP;
+  if(Q.change&&Q.right===5&&!Q.bonus){Q.bonus=5;p.gems+=5;Q.gems+=5;save()}
+  const msg=Q.right===5?'Perfect! Super! 🏆':Q.right>=3?'Well done! Keep going 💪':'Good try – practice makes perfect 🌱';
+  if(Q.right>=4)confetti(25);
+  app.innerHTML=`<div class="center"><div class="rs">${msg}</div>
+   <div class="stage" style="width:100%;height:280px">${petHTML(k,p.stage,P,260).replace('class="pv','class="pv hop')}</div>
+   <div class="info" style="width:100%"><div>Correct: <b>${Q.right}</b> / 5</div><div style="font-size:22px;font-weight:900;color:#d9480f">⭐ +${Q.gained}${Q.boost?' (main subject ×2)':''}</div>
+   ${Q.change?`<div style="font-size:22px;font-weight:900;color:#0b6fa8">💎 +${Q.gems}${Q.bonus?' (perfect bonus +5)':''}</div>`:''}
+   ${up?`<div style="font-weight:900;color:#7b2ff7">⚡ Power up to P${P}!</div>`:''}</div>
+   ${canEvolve(p)?'<button class="evo" id="evo" style="width:100%">✨ Ready to evolve! Tap me ✨</button>':''}
+   <button class="next" style="width:100%" id="again">Play again: ${Q.change?'Change game':SUBJ[Q.sk].name}</button>
+   ${Q.change?'<button class="ghost" id="shop">🛍️ Back to shop</button>':''}
+   <button class="ghost" id="home">Home</button></div>`;
+  $('#again').onclick=()=>startRound(Q.sk,{change:Q.change});
+  $('#home').onclick=homeScreen;
+  const sh=$('#shop');if(sh)sh.onclick=shopScreen;
+  const e=$('#evo');if(e)e.onclick=evolveScreen;
+  maybeEvolve(2600);
+}
+
+/* ---------- evolve ---------- */
+function evolveScreen(){
+  if(EVOLVING)return;EVOLVING=true;
+  const k=S.current,p=cur(),old=p.stage,P=power(p);
+  app.innerHTML=`<div class="center" style="margin-top:20px"><div class="title">Evolving…✨</div><div class="stage glow" style="width:100%;height:340px">${petHTML(k,old,P,300)}</div></div>`;
+  sndUP();
+  setTimeout(()=>{$('#flash').classList.add('go')},1000);
+  setTimeout(()=>{
+    p.stage=old+1;save();sndUP();confetti(50);
+    const P2=power(p);
+    app.innerHTML=`<div class="center" style="margin-top:20px"><div class="rs">Evolved! 🎉</div><div class="stage" style="width:100%;height:340px">${petHTML(k,p.stage,P2,320)}</div><div class="chip" style="font-size:20px">${PETS[k].name} evolved to Lv${p.stage}!${p.stage===3?'Power can now rise without limit ⚡':'Power cap raised ⚡'}</div><button class="next" style="width:100%" id="ok">Awesome!</button></div>`;
+    $('#ok').onclick=homeScreen;
+    $('#flash').classList.remove('go');EVOLVING=false;
+  },1900);
+}
+
+/* ================= boot ================= */
+(function(){const sk=document.getElementById('sky');let h='';
+  [[6,0,70,'☁️'],[18,0,120,'☁️'],[34,-40,95,'☁️'],[55,0,150,'☁️'],[72,0,85,'☁️']].forEach(([t,d,sec,e],i)=>h+=`<span class="cl" style="top:${t}%;animation-duration:${sec}s;animation-delay:${-i*23}s;font-size:${48+i*9}px">${e}</span>`);
+  for(let i=0;i<22;i++)h+=`<span class="st" style="left:${(i*47)%100}%;top:${(i*29+7)%92}%;font-size:${12+(i*5)%14}px;animation-delay:${(i*0.37)%2.6}s">${['✨','⭐','💫'][i%3]}</span>`;
+  sk.innerHTML=h})();
+addEventListener('keydown',e=>{
+  if(e.target&&/INPUT|TEXTAREA/.test(e.target.tagName))return;
+  if(e.key==='Enter'||e.key===' '){const g=document.querySelector('#go');if(g){e.preventDefault();g.click()}return}
+  if(/^[1-4]$/.test(e.key)){const b=[...document.querySelectorAll('.opt')].filter(x=>!x.classList.contains('bad')&&!x.classList.contains('gone'))[+e.key-1];if(b)b.click()}
+});
+setInterval(()=>{const els=[...document.querySelectorAll('.pv')].filter(e=>!/c-|oops|idlehop/.test(e.className));
+  if(!els.length)return;const e=els[Math.floor(Math.random()*els.length)];e.classList.add('idlehop');setTimeout(()=>e.classList.remove('idlehop'),700)},4200);
+whoScreen();
+</script>
+</body>
+</html>
